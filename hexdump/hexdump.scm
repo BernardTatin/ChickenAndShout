@@ -80,6 +80,10 @@
 			(rest (cdr files))
 			(address 0))
 		(printf "~A~%" current-file)
+		;;; NOTE: 
+		;;; with-exception-handler goes back wher the exception raise
+		;;; so we can have an infinite loop
+		;;; call-with-current-continuation help us to prevent this
 		(call-with-current-continuation
 		  (lambda (k)
 			(with-exception-handler
