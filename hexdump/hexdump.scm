@@ -27,17 +27,24 @@
 ;;
 ;; ======================================================================
 
-(require-extension matchable)
-
-(declare (uses extras))		;; Chicken specific
+;; chicken specific, call for libs
+(require-extension matchable)	;; for match
+(declare (uses extras))			;; for printf and read-byte
 
 (define *app-name* (car (argv)))
 (define *app-vers* "0.0.1")
 
 (define dohelp
   (lambda (exit-code)
-	(printf "~A [--help] : this text~%" *app-name*)
+	(printf "~A [--help] : this text and exits~%" *app-name*)
+	(printf "~A --version : show the version and exits~%" *app-name*)
 	(printf "~A file file ... : make an hexdump of all these files~%" *app-name*)
+	(exit exit-code)))
+
+(define doversion
+  (lambda (exit-code)
+	(printf "~A version ~A~%" *app-name* *app-vers*)
+	(printf "   (more informations with : ~A --help)~%" *app-name*)
 	(exit exit-code)))
 
 (define hexint
@@ -68,17 +75,23 @@
 
 (define hexd
   (lambda (files)
-	(if (not (null? files))
-		(let ((current-file (car files))
-			  (rest (cdr files))
-			  (address 0))
-		  (printf "~A~%" current-file)
-		  (with-input-from-file current-file
-								(lambda() 
-								  ;; ------------------------------------
-								  (hexline address)))
-		  (printf "~%")
-		  (hexd rest)))))
+	(when (not (null? files))
+	  (let ((current-file (car files))
+			(rest (cdr files))
+			(address 0))
+		(printf "~A~%" current-file)
+		(call-with-current-continuation
+		  (lambda (k)
+			(with-exception-handler
+			  (lambda(exn)
+				(printf "Cannot open ~A~%" current-file)
+				(k '()))
+			  (lambda()
+				(with-input-from-file current-file
+									  (lambda() 
+										(hexline address)))))))
+		(printf "~%")
+		(hexd rest)))))
 
 (define main
   (lambda ()
@@ -86,6 +99,9 @@
 	  (match args
 			 (() (dohelp 0))
 			 (("--help") (dohelp 0))
+			 (("--help" _) (dohelp 0))
+			 (("--version") (doversion 0))
+			 (("--version" _) (doversion 0))
 			 (_ (hexd args))))))
 
 (main)
