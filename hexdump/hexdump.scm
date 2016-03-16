@@ -40,6 +40,12 @@
 	(printf "~A file file ... : make an hexdump of all these files~%" *app-name*)
 	(exit exit-code)))
 
+(define hexint
+  (lambda(addr)
+	(let* ((s (sprintf "00000000~X" addr))
+		   (l (string-length s)))
+	  (substring s (- l 8) l))))
+
 (define hexchar
   (lambda(count)
 	(if (not (= 0 count))
@@ -47,13 +53,16 @@
 		(if (eof-object? c)
 		  c
 		  (begin
-			(printf "~X " c)
-			(hexchar (- count 1)))))
+			(let ((cc c))
+			  (if (< cc 16)
+				(printf "0~X " cc) 
+				(printf "~X " cc))
+			  (hexchar (- count 1))))))
 	  0)))
 
 (define hexline
   (lambda (address)
-	(printf "~%~X : " address)
+	(printf "~%~A : " (hexint address))
 	(when (not (eof-object? (hexchar 16)))
 	  (hexline (+ address 16)))))
 
