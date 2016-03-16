@@ -1,2 +1,5 @@
 # ChickenAndShout
-(and (Chicken Scheme) (no Bugs) (I hope))
+
+```scheme
+(and (Chicken Scheme) (not Bugs) (I hope))
+```
