@@ -47,11 +47,21 @@
 	(printf "   (more informations with : ~A --help)~%" *app-name*)
 	(exit exit-code)))
 
-(define hexint
-  (lambda(addr)
-	(let* ((s (sprintf "00000000~X" addr))
-		   (l (string-length s)))
-	  (substring s (- l 8) l))))
+;; we use a closure to have one zeroes creation
+;; (bad english, bad comment or both?)
+(define hexgenerator
+  (lambda(length)
+	(let ((zeroes (make-string length #\0)))
+
+	  (define hexint
+		(lambda(value)
+		  (let* ((s (sprintf "~A~X" zeroes value))
+				 (l (string-length s)))
+			(substring s (- l length) l))))
+	  hexint)))
+
+(define hex2 (hexgenerator 2))
+(define hex8 (hexgenerator 8))
 
 (define hexchar
   (lambda(count)
@@ -60,16 +70,13 @@
 		(if (eof-object? c)
 		  c
 		  (begin
-			(let ((cc c))
-			  (if (< cc 16)
-				(printf "0~X " cc) 
-				(printf "~X " cc))
-			  (hexchar (- count 1))))))
+			(printf "~A " (hex2 c))
+			(hexchar (- count 1)))))
 	  0)))
 
 (define hexline
   (lambda (address)
-	(printf "~%~A : " (hexint address))
+	(printf "~%~A " (hex8 address))
 	(when (not (eof-object? (hexchar 16)))
 	  (hexline (+ address 16)))))
 
