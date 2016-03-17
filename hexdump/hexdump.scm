@@ -63,7 +63,7 @@
 (define hex2 (hexgenerator 2))
 (define hex8 (hexgenerator 8))
 
-(define hexchar
+(define byte-hexdump
   (lambda(count)
 	(if (not (= 0 count))
 	  (let ((c (read-byte)))
@@ -71,16 +71,16 @@
 		  c
 		  (begin
 			(printf "~A " (hex2 c))
-			(hexchar (- count 1)))))
+			(byte-hexdump (- count 1)))))
 	  0)))
 
-(define hexline
+(define line-hexdump
   (lambda (address)
 	(printf "~%~A " (hex8 address))
-	(when (not (eof-object? (hexchar 16)))
-	  (hexline (+ address 16)))))
+	(when (not (eof-object? (byte-hexdump 16)))
+	  (line-hexdump (+ address 16)))))
 
-(define hexd
+(define file-hexdump
   (lambda (files)
 	(when (not (null? files))
 	  (let ((current-file (car files))
@@ -99,9 +99,9 @@
 			  (lambda()
 				(with-input-from-file current-file
 									  (lambda() 
-										(hexline address)))))))
+										(line-hexdump address)))))))
 		(printf "~%")
-		(hexd rest)))))
+		(file-hexdump rest)))))
 
 (define main
   (lambda ()
@@ -112,6 +112,6 @@
 			 (("--help" _) (dohelp 0))
 			 (("--version") (doversion 0))
 			 (("--version" _) (doversion 0))
-			 (_ (hexd args))))))
+			 (_ (file-hexdump args))))))
 
 (main)
