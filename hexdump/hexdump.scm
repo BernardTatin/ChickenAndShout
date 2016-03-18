@@ -29,23 +29,8 @@
 
 ;; chicken specific, call for libs
 (require-extension matchable)	;; for match
-(declare (uses extras))			;; for printf and read-byte
-
-(define *app-name* (car (argv)))
-(define *app-vers* "0.0.1")
-
-(define dohelp
-  (lambda (exit-code)
-	(printf "~A [--help] : this text and exits~%" *app-name*)
-	(printf "~A --version : show the version and exits~%" *app-name*)
-	(printf "~A file file ... : make an hexdump of all these files~%" *app-name*)
-	(exit exit-code)))
-
-(define doversion
-  (lambda (exit-code)
-	(printf "~A version ~A~%" *app-name* *app-vers*)
-	(printf "   (more informations with : ~A --help)~%" *app-name*)
-	(exit exit-code)))
+(declare (uses extras))
+(declare (uses helpers))
 
 ;; we use a closure to have one zeroes creation
 ;; (bad english, bad comment or both?)

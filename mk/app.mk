@@ -1,6 +1,6 @@
 # ======================================================================
-# Makefile
-# project hexdump
+# app.mk
+# for ChickenAndShout builds
 #
 # The MIT License (MIT)
 # 
@@ -26,8 +26,28 @@
 #
 # ======================================================================
 
-SOURCES = helpers.scm hexdump.scm
-APP = hexdump.exe
-EXTENSIONS = 
+CSC = csc $(EXTENSIONS) -c -debug-level 0 -verbose  -I.
+CSLD = csc
 
-include ../mk/app.mk
+RM = rm -f
+
+
+OBJS = $(patsubst %.scm,%.o,$(notdir $(SOURCES)))
+CSRCS = $(patsubst %.scm,%.c,$(notdir $(SOURCES)))
+
+
+all: $(APP)
+
+$(APP): $(OBJS) 
+	$(CSLD) $(OBJS) -o $@
+
+clean: 
+	$(RM) $(OBJS) $(APP) $(CSRCS)
+
+%.o: %.scm
+	$(CSC) $<
+
+
+.PHONY: all clean
+
+
