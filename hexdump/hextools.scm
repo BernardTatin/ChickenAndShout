@@ -29,7 +29,7 @@
 
 (declare (unit hextools))
 
-;; we use a closure to have one zeroes creation
+;; we use a closure to have only one zeroes creation
 ;; (bad english, bad comment or both?)
 (define hexgenerator
   (lambda(length)
@@ -40,5 +40,6 @@
 		  (let* ((s (sprintf "~A~X" zeroes value))
 				 (l (string-length s)))
 			(substring s (- l length) l))))
+
 	  hexint)))
 
