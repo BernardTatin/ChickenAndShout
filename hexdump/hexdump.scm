@@ -30,20 +30,9 @@
 ;; chicken specific, call for libs
 (require-extension matchable)	;; for match
 (declare (uses extras))
+;; local libs
 (declare (uses helpers))
-
-;; we use a closure to have one zeroes creation
-;; (bad english, bad comment or both?)
-(define hexgenerator
-  (lambda(length)
-	(let ((zeroes (make-string length #\0)))
-
-	  (define hexint
-		(lambda(value)
-		  (let* ((s (sprintf "~A~X" zeroes value))
-				 (l (string-length s)))
-			(substring s (- l length) l))))
-	  hexint)))
+(declare (uses hextools))
 
 (define hex2 (hexgenerator 2))
 (define hex8 (hexgenerator 8))
