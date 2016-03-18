@@ -31,21 +31,27 @@ CSLD = csc
 
 RM = rm -f
 
+odir = objs
 
-OBJS = $(patsubst %.scm,%.o,$(notdir $(SOURCES)))
-CSRCS = $(patsubst %.scm,%.c,$(notdir $(SOURCES)))
+_OBJS = $(SOURCES:%.scm=%.o)
+OBJS = $(_OBJS:%=$(odir)/%)
+
+CSRCS = $(SOURCES:%.scm=%.c)
 
 
 all: $(APP)
 
-$(APP): $(OBJS) 
+$(APP): $(odir) $(OBJS) 
 	$(CSLD) $(OBJS) -o $@
+
+$(odir):
+	mkdir -p $@
 
 clean: 
 	$(RM) $(OBJS) $(APP) $(CSRCS)
 
-%.o: %.scm
-	$(CSC) $<
+$(odir)/%.o: %.scm
+	$(CSC) $< -o $@
 
 
 .PHONY: all clean
