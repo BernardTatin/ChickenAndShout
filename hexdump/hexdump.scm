@@ -61,14 +61,14 @@
 			(rest (cdr files))
 			(address 0))
 		;;; NOTE: 
-		;;; with-exception-handler goes back wher the exception raise
-		;;; so we can have an infinite loop
+		;;; with-exception-handler goes back where the exception raise
+		;;; so we create an infinite loop
 		;;; call-with-current-continuation help us to prevent this
 		(call-with-current-continuation
 		  (lambda (k)
 			(with-exception-handler
 			  (lambda(exn)
-				(printf "Cannot open ~A~%" current-file)
+				(printf "Cannot open ~A -> ~A~%" current-file exn)
 				(k '()))
 			  (lambda()
 				(with-input-from-file current-file
