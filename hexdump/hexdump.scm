@@ -65,11 +65,11 @@
 		;;; so we create an infinite loop
 		;;; call-with-current-continuation help us to prevent this
 		(call-with-current-continuation
-		  (lambda (k)
+		  (lambda (exit)
 			(with-exception-handler
 			  (lambda(exn)
 				(printf "Cannot open ~A -> ~A~%" current-file exn)
-				(k '()))
+				(exit '()))
 			  (lambda()
 				(with-input-from-file current-file
 									  (lambda() 
