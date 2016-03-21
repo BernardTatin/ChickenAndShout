@@ -33,6 +33,7 @@
 ;; local libs
 (declare (uses helpers))
 (declare (uses hextools))
+(include "macros.scm")
 
 (define hex2 (hexgenerator 2))
 (define hex8 (hexgenerator 8))
@@ -54,20 +55,6 @@
 	(when (not (eof-object? (byte-hexdump 16)))
 	  (line-hexdump (+ address 16)))))
 
-;;; NOTE: 
-;;; with-exception-handler goes back where the exception raise
-;;; so we create an infinite loop
-;;; call-with-current-continuation help us to prevent this
-;;; PS: must find better names? 
-;;;
-(define-syntax with-exception
-  (syntax-rules (try catch)
-	((with-exception <return> (try <dotry>) (catch <docatch>))
-	 (call-with-current-continuation
-	   (lambda (<return>)
-		 (with-exception-handler
-		   <docatch>
-		   <dotry>))))))
 
 (define file-hexdump
   (lambda (files)
