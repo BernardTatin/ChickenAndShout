@@ -35,6 +35,8 @@
 (declare (uses hextools))
 (include "macros.scm")
 
+(define-constant bufferLen	16)
+
 (define hex2 (hexgenerator 2))
 (define hex8 (hexgenerator 8))
 
@@ -52,15 +54,14 @@
 (define line-hexdump
   (lambda (address)
 	(printf "~%~A " (hex8 address))
-	(when (not (eof-object? (byte-hexdump 16)))
-	  (line-hexdump (+ address 16)))))
+	(when (not (eof-object? (byte-hexdump bufferLen)))
+	  (line-hexdump (+ address bufferLen)))))
 
 
 (define file-hexdump
   (lambda (files)
 	(when (not (null? files))
 	  (let ((current-file (car files))
-			(rest (cdr files))
 			(address 0))
 		(with-exception return
 			(try
@@ -74,7 +75,7 @@
 				(return #f))))
 
 		(printf "~%")
-		(file-hexdump rest)))))
+		(file-hexdump (cdr files))))))
 
 (define main
   (lambda ()
