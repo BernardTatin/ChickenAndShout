@@ -54,26 +54,37 @@
 	(when (not (eof-object? (byte-hexdump 16)))
 	  (line-hexdump (+ address 16)))))
 
+;;; NOTE: 
+;;; with-exception-handler goes back where the exception raise
+;;; so we create an infinite loop
+;;; call-with-current-continuation help us to prevent this
+;;; PS: must find better names?
+(define-syntax with-exception
+  (syntax-rules (try catch)
+	((with-exception <return> (try <dotry>) (catch <docatch>))
+	 (call-with-current-continuation
+	   (lambda (<return>)
+		 (with-exception-handler
+		   <docatch>
+		   <dotry>))))))
+
 (define file-hexdump
   (lambda (files)
 	(when (not (null? files))
 	  (let ((current-file (car files))
 			(rest (cdr files))
 			(address 0))
-		;;; NOTE: 
-		;;; with-exception-handler goes back where the exception raise
-		;;; so we create an infinite loop
-		;;; call-with-current-continuation help us to prevent this
-		(call-with-current-continuation
-		  (lambda (exit)
-			(with-exception-handler
-			  (lambda(exn)
-				(printf "Cannot open ~A -> ~A~%" current-file exn)
-				(exit '()))
+		(with-exception return
+			(try
 			  (lambda()
 				(with-input-from-file current-file
 									  (lambda() 
-										(line-hexdump address)))))))
+										(line-hexdump address)))))
+			(catch
+			  (lambda(exn)
+				(printf "Cannot open file ~A -> ~A~%" current-file exn)
+				(return #f))))
+
 		(printf "~%")
 		(file-hexdump rest)))))
 
