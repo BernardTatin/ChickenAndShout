@@ -26,14 +26,17 @@
 #
 # ======================================================================
 
-CSC = csc $(EXTENSIONS) -c -debug-level 0 -verbose  -I.
+INCS = -I. -I../lib -I../lib/fileOperations 
+
+CSC = csc $(EXTENSIONS) -c -debug-level 0 -verbose $(INCS)
 CSLD = csc
 
 RM = rm -f
 
 odir = objs
 
-_OBJS = $(SOURCES:%.scm=%.o)
+_srcs = $(notdir $(SOURCES))
+_OBJS = $(_srcs:%.scm=%.o)
 OBJS = $(_OBJS:%=$(odir)/%)
 
 CSRCS = $(SOURCES:%.scm=%.c)
@@ -51,6 +54,9 @@ clean:
 	$(RM) $(OBJS) $(APP) $(CSRCS)
 
 $(odir)/%.o: %.scm
+	$(CSC) $< -o $@
+
+$(odir)/%.o: ../lib/fileOperations/%.scm
 	$(CSC) $< -o $@
 
 

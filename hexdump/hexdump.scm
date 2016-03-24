@@ -33,6 +33,7 @@
 ;; local libs
 (declare (uses helpers))
 (declare (uses hextools))
+(declare (uses file-operations))
 (include "macros.scm")
 
 (define-constant bufferLen	16)
@@ -57,6 +58,23 @@
 	(when (not (eof-object? (byte-hexdump bufferLen)))
 	  (line-hexdump (+ address bufferLen)))))
 
+(define xdump
+  (lambda (fileReader)
+	(define ixd
+	  (lambda (address)
+		(let* ((result (fileReader))
+			   (rcount (car result))
+			   (buffer (cadr result)))
+		  (cond
+			((= 0 rcount)
+			 #f)
+			(else
+			  (printf "~%~A " (hex8 address))
+			  (for-each (lambda(x) (printf "~A " (hex2 x))) 
+						(vector->list buffer))
+			  (ixd (+ rcount address)))))))
+	(ixd 0)))
+
 
 (define file-hexdump
   (lambda (files)
@@ -66,12 +84,13 @@
 		(with-exception return
 			(try
 			  (lambda()
-				(with-input-from-file current-file
-									  (lambda() 
-										(line-hexdump address)))))
+				(let ((fileReader (simpleFileReader current-file 16)))
+				  (if (not (null? fileReader))
+					(xdump fileReader)
+					(printf "cannot process ~A~%" current-file)))))
 			(catch
 			  (lambda(exn)
-				(printf "Cannot open file ~A -> ~A~%" current-file exn)
+				(printf "[ERROR] Cannot process file ~A -> ~A~%" current-file exn)
 				(return #f))))
 
 		(printf "~%")

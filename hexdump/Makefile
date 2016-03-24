@@ -26,7 +26,7 @@
 #
 # ======================================================================
 
-SOURCES = helpers.scm hexdump.scm hextools.scm
+SOURCES = helpers.scm hexdump.scm hextools.scm ../lib/fileOperations/simpleFileReader.scm
 APP = hexdump.exe
 EXTENSIONS = 
 
