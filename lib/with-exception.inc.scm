@@ -27,6 +27,8 @@
 ;;
 ;; ======================================================================
 
+;; r7rs ready -
+
 ;;; NOTE: 
 ;;; with-exception-handler goes back where the exception raise
 ;;; so we create an infinite loop

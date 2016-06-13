@@ -27,19 +27,24 @@
 ;;
 ;; ======================================================================
 
-(declare (unit hextools))
+;; (declare (unit hextools))
 
-;; we use a closure to have only one zeroes creation
-;; (bad english, bad comment or both?)
-(define hexgenerator
-  (lambda(length)
-	(let ((zeroes (make-string length #\0)))
+(define-library 
+  (hextools)
+  (export hexgenerator)
+  (import (scheme base) (scheme write) (scheme process-context))
+  (begin
+	;; we use a closure to have only one zeroes creation
+	;; (bad english, bad comment or both?)
+	(define hexgenerator
+	  (lambda(length)
+		(let ((zeroes (make-string length #\0)))
 
-	  (define hexint
-		(lambda(value)
-		  (let* ((s (sprintf "~A~X" zeroes value))
-				 (l (string-length s)))
-			(substring s (- l length) l))))
+		  (define hexint
+			(lambda(value)
+			  (let* ((s (sprintf "~A~X" zeroes value))
+					 (l (string-length s)))
+				(substring s (- l length) l))))
 
-	  hexint)))
-
+		  hexint)))
+	))

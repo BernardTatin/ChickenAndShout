@@ -27,6 +27,7 @@
 ;;
 ;; ======================================================================
 
+#|
 ;; chicken specific, call for libs
 (require-extension matchable)	;; for match
 (declare (uses extras))
@@ -35,76 +36,96 @@
 (declare (uses hextools))
 (declare (uses file-operations))
 (include "macros.scm")
+|#
 
-(define-constant bufferLen	16)
+	
+(define-library 
+  (hexdump)
+  (cond-expand
+	(chicken
+	  (begin
+		(require-extension matchable)	;; for match
+		(declare (uses extras))))
+	(sagittarius
+	  (import (match)
+			  (scheme base) (scheme write) (scheme process-context)
+			  (helpers) (hextools) (simpleFileReader)))
+	(else 
+	  (import (scheme base) (scheme write) (scheme process-context)
+			  (helpers) (hextools) (simpleFileReader))))
 
-(define hex2 (hexgenerator 2))
-(define hex8 (hexgenerator 8))
+  (begin
+	(include "macros.scm")
 
-(define byte-hexdump
-  (lambda(count)
-	(if (not (= 0 count))
-	  (let ((c (read-byte)))
-		(if (eof-object? c)
-		  c
-		  (begin
-			(printf "~A " (hex2 c))
-			(byte-hexdump (- count 1)))))
-	  0)))
+	(define-constant bufferLen	16)
 
-(define line-hexdump
-  (lambda (address)
-	(printf "~%~A " (hex8 address))
-	(when (not (eof-object? (byte-hexdump bufferLen)))
-	  (line-hexdump (+ address bufferLen)))))
+	(define hex2 (hexgenerator 2))
+	(define hex8 (hexgenerator 8))
 
-(define xdump
-  (lambda (fileReader)
-	(define ixd
+	(define byte-hexdump
+	  (lambda(count)
+		(if (not (= 0 count))
+		  (let ((c (read-byte)))
+			(if (eof-object? c)
+			  c
+			  (begin
+				(printf "~A " (hex2 c))
+				(byte-hexdump (- count 1)))))
+		  0)))
+
+	(define line-hexdump
 	  (lambda (address)
-		(let* ((result (fileReader))
-			   (rcount (car result))
-			   (buffer (cadr result)))
-		  (cond
-			((= 0 rcount)
-			 #f)
-			(else
-			  (printf "~%~A " (hex8 address))
-			  (for-each (lambda(x) (printf "~A " (hex2 x))) 
-						(vector->list buffer))
-			  (ixd (+ rcount address)))))))
-	(ixd 0)))
+		(printf "~%~A " (hex8 address))
+		(when (not (eof-object? (byte-hexdump bufferLen)))
+		  (line-hexdump (+ address bufferLen)))))
+
+	(define xdump
+	  (lambda (fileReader)
+		(define ixd
+		  (lambda (address)
+			(let* ((result (fileReader))
+				   (rcount (car result))
+				   (buffer (cadr result)))
+			  (cond
+				((= 0 rcount)
+				 #f)
+				(else
+				  (printf "~%~A " (hex8 address))
+				  (for-each (lambda(x) (printf "~A " (hex2 x))) 
+							(vector->list buffer))
+				  (ixd (+ rcount address)))))))
+		(ixd 0)))
 
 
-(define file-hexdump
-  (lambda (files)
-	(when (not (null? files))
-	  (let ((current-file (car files))
-			(address 0))
-		(with-exception return
-			(try
-			  (lambda()
-				(let ((fileReader (simpleFileReader current-file 16)))
-				  (if (not (null? fileReader))
-					(xdump fileReader)
-					(printf "cannot process ~A~%" current-file)))))
-			(catch
-			  (lambda(exn)
-				(printf "[ERROR] Cannot process file ~A -> ~A~%" current-file exn)
-				(return #f))))
+	(define file-hexdump
+	  (lambda (files)
+		(when (not (null? files))
+		  (let ((current-file (car files))
+				(address 0))
+			(with-exception return
+							(try
+							  (lambda()
+								(let ((fileReader (simpleFileReader current-file 16)))
+								  (if (not (null? fileReader))
+									(xdump fileReader)
+									(printf "cannot process ~A~%" current-file)))))
+							(catch
+							  (lambda(exn)
+								(printf "[ERROR] Cannot process file ~A -> ~A~%" current-file exn)
+								(return #f))))
 
-		(printf "~%")
-		(file-hexdump (cdr files))))))
+			(printf "~%")
+			(file-hexdump (cdr files))))))
 
-(define main
-  (lambda ()
-	(let ((args (cdr (argv))))
-	  (match args
-			 (() (dohelp 0))
-			 (("--help") (dohelp 0))
-			 (("--help" _) (dohelp 0))
-			 (("--version") (doversion 0))
-			 (("--version" _) (doversion 0))
-			 (_ (file-hexdump args))))))
+	(define main
+	  (lambda ()
+		(let ((args (cdr (command-line))))
+		  (match args
+				 (() (dohelp 0))
+				 (("--help") (dohelp 0))
+				 (("--help" _) (dohelp 0))
+				 (("--version") (doversion 0))
+				 (("--version" _) (doversion 0))
+				 (_ (file-hexdump args))))))
 
-(main)
+	(main)))

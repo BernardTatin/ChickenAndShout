@@ -27,46 +27,59 @@
 ;;
 ;; ======================================================================
 
-(declare (unit file-operations))
-(declare (uses extras))
+;; (declare (unit file-operations))
+;; (declare (uses extras))
 
-(include "../lib/with-exception.inc.scm")
+(cond-expand
+  (chicken
+	(begin
+	  (require-extension matchable)	;; for match
+	  (declare (uses extras))))
+  (else #t))
 
-(define safe-open-file
-  (lambda (file-name)
-	(with-exception return
-					(try
-					  (lambda()
-						(open-input-file file-name)))
-					(catch
-					  (lambda(exn)
-						(printf "Cannot open file ~A -> ~A~%" 
-								file-name exn)
-						(return #f))))))
+(define-library 
+  (simpleFileReader)
+  (export simpleFileReader fill-buffer safe-open-file)
+  (import (scheme base) (scheme write) (scheme process-context))
 
-(define fill-buffer
-  (lambda (fHandle buffer buffer-len)
-	(define ifill 
-	  (lambda (position count)
-		(let ((c (read-byte fHandle)))
-		  (cond
-			((eof-object? c)
-			 (close-input-port fHandle)
-			 (list count buffer))
-			((= count buffer-len)
-			 (list count buffer))
-			(else
-			  (vector-set! buffer position c)
-			  (ifill (+ 1 position) (+ 1 count)))))))
-	(ifill 0 0)))
+  (begin
+	(include "../lib/with-exception.inc.scm")
+
+	(define safe-open-file
+	  (lambda (file-name)
+		(with-exception return
+						(try
+						  (lambda()
+							(open-input-file file-name)))
+						(catch
+						  (lambda(exn)
+							(printf "Cannot open file ~A -> ~A~%" 
+									file-name exn)
+							(return #f))))))
+
+	(define fill-buffer
+	  (lambda (fHandle buffer buffer-len)
+		(define ifill 
+		  (lambda (position count)
+			(let ((c (read-byte fHandle)))
+			  (cond
+				((eof-object? c)
+				 (close-input-port fHandle)
+				 (list count buffer))
+				((= count buffer-len)
+				 (list count buffer))
+				(else
+				  (vector-set! buffer position c)
+				  (ifill (+ 1 position) (+ 1 count)))))))
+		(ifill 0 0)))
 
 
-(define simpleFileReader
-  (lambda (file-name buffer-size)
-	(let ((buffer (make-vector buffer-size))
-		  (fHandle (safe-open-file file-name)))
-	  (if (not fHandle)
-		'()
-		(lambda ()
-		  (fill-buffer fHandle buffer buffer-size))))))
-
+	(define simpleFileReader
+	  (lambda (file-name buffer-size)
+		(let ((buffer (make-vector buffer-size))
+			  (fHandle (safe-open-file file-name)))
+		  (if (not fHandle)
+			'()
+			(lambda ()
+			  (fill-buffer fHandle buffer buffer-size))))))
+	))

@@ -27,21 +27,27 @@
 ;;
 ;; ======================================================================
 
-(declare (unit helpers))
+;; (declare (unit helpers))
 
-(define *app-name* (car (argv)))
-(define *app-vers* "0.0.1")
+(define-library 
+  (helpers)
+  (export dohelp doversion)
+  (import (scheme base) (scheme write) (scheme process-context))
 
-(define dohelp
-  (lambda (exit-code)
-	(printf "~A [--help] : this text and exits~%" *app-name*)
-	(printf "~A --version : show the version and exits~%" *app-name*)
-	(printf "~A file file ... : make an hexdump of all these files~%" *app-name*)
-	(exit exit-code)))
+  (begin
+	(define *app-name* (car (command-line)))
+	(define *app-vers* "0.0.1")
 
-(define doversion
-  (lambda (exit-code)
-	(printf "~A version ~A~%" *app-name* *app-vers*)
-	(printf "   (more informations with : ~A --help)~%" *app-name*)
-	(exit exit-code)))
+	(define dohelp
+	  (lambda (exit-code)
+		(printf "~A [--help] : this text and exits~%" *app-name*)
+		(printf "~A --version : show the version and exits~%" *app-name*)
+		(printf "~A file file ... : make an hexdump of all these files~%" *app-name*)
+		(exit exit-code)))
 
+	(define doversion
+	  (lambda (exit-code)
+		(printf "~A version ~A~%" *app-name* *app-vers*)
+		(printf "   (more informations with : ~A --help)~%" *app-name*)
+		(exit exit-code)))
+	))
