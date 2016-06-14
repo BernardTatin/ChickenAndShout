@@ -41,43 +41,17 @@
 	
 (define-library 
   (hexdump)
-  (cond-expand
-	(chicken
-	  (begin
-		(require-extension matchable)	;; for match
-		(declare (uses extras))))
-	(sagittarius
-	  (import (match)
-			  (scheme base) (scheme write) (scheme process-context)
-			  (helpers) (hextools) (simpleFileReader)))
-	(else 
-	  (import (scheme base) (scheme write) (scheme process-context)
-			  (helpers) (hextools) (simpleFileReader))))
+  (import 
+		  (scheme base) (scheme write) (scheme process-context)
+		  (slprintf)
+		  (bbmatch) (helpers) (simpleFileReader))
 
   (begin
+	(display "Starting...\n")
 	(include "macros.scm")
 
 	(define-constant bufferLen	16)
 
-	(define hex2 (hexgenerator 2))
-	(define hex8 (hexgenerator 8))
-
-	(define byte-hexdump
-	  (lambda(count)
-		(if (not (= 0 count))
-		  (let ((c (read-byte)))
-			(if (eof-object? c)
-			  c
-			  (begin
-				(printf "~A " (hex2 c))
-				(byte-hexdump (- count 1)))))
-		  0)))
-
-	(define line-hexdump
-	  (lambda (address)
-		(printf "~%~A " (hex8 address))
-		(when (not (eof-object? (byte-hexdump bufferLen)))
-		  (line-hexdump (+ address bufferLen)))))
 
 	(define xdump
 	  (lambda (fileReader)
@@ -90,8 +64,8 @@
 				((= 0 rcount)
 				 #f)
 				(else
-				  (printf "~%~A " (hex8 address))
-				  (for-each (lambda(x) (printf "~A " (hex2 x))) 
+				  (slprintf "\n%08x " address)
+				  (for-each (lambda(x) (slprintf "%02x " x)) 
 							(vector->list buffer))
 				  (ixd (+ rcount address)))))))
 		(ixd 0)))
@@ -108,24 +82,24 @@
 								(let ((fileReader (simpleFileReader current-file 16)))
 								  (if (not (null? fileReader))
 									(xdump fileReader)
-									(printf "cannot process ~A~%" current-file)))))
+									(slprintf "cannot process %s\n" current-file)))))
 							(catch
 							  (lambda(exn)
-								(printf "[ERROR] Cannot process file ~A -> ~A~%" current-file exn)
+								(slprintf "[ERROR] Cannot process file %s -> %s\n" current-file exn)
 								(return #f))))
 
-			(printf "~%")
+			(slprintf "\n")
 			(file-hexdump (cdr files))))))
 
 	(define main
 	  (lambda ()
 		(let ((args (cdr (command-line))))
+		  (slprintf "args ... %s\n" args)
 		  (match args
 				 (() (dohelp 0))
 				 (("--help") (dohelp 0))
-				 (("--help" _) (dohelp 0))
+				 ;; (("--help" _) (dohelp 0))
 				 (("--version") (doversion 0))
-				 (("--version" _) (doversion 0))
-				 (_ (file-hexdump args))))))
-
-	(main)))
+				 ;; (("--version" _) (doversion 0))
+				 ('(f o) (file-hexdump args))))))
+	))

@@ -32,7 +32,7 @@
 (define-library 
   (helpers)
   (export dohelp doversion)
-  (import (scheme base) (scheme write) (scheme process-context))
+  (import (scheme base) (scheme write) (scheme process-context) (slprintf))
 
   (begin
 	(define *app-name* (car (command-line)))
@@ -40,14 +40,14 @@
 
 	(define dohelp
 	  (lambda (exit-code)
-		(printf "~A [--help] : this text and exits~%" *app-name*)
-		(printf "~A --version : show the version and exits~%" *app-name*)
-		(printf "~A file file ... : make an hexdump of all these files~%" *app-name*)
+		(slprintf "%s [--help] : this text and exits\n" *app-name*)
+		(slprintf "%s --version : show the version and exits\n" *app-name*)
+		(slprintf "%s file file ... : make an hexdump of all these files\n" *app-name*)
 		(exit exit-code)))
 
 	(define doversion
 	  (lambda (exit-code)
-		(printf "~A version ~A~%" *app-name* *app-vers*)
-		(printf "   (more informations with : ~A --help)~%" *app-name*)
+		(slprintf "%s version %s\n" *app-name* *app-vers*)
+		(slprintf "   (more informations with : %s --help)\n" *app-name*)
 		(exit exit-code)))
 	))

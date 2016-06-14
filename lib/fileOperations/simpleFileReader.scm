@@ -30,30 +30,49 @@
 ;; (declare (unit file-operations))
 ;; (declare (uses extras))
 
-(cond-expand
-  (chicken
-	(begin
-	  (require-extension matchable)	;; for match
-	  (declare (uses extras))))
-  (else #t))
-
 (define-library 
   (simpleFileReader)
   (export simpleFileReader fill-buffer safe-open-file)
-  (import (scheme base) (scheme write) (scheme process-context))
+  (import (scheme base) (scheme write) (scheme process-context) 
+		  (scheme file) (slprintf))
+
 
   (begin
-	(include "../lib/with-exception.inc.scm")
+	(cond-expand
+	  (chicken
+		(begin
+		  (require-extension matchable)	;; for match
+		  (declare (uses extras))))
+	  (foment
+		(define read-byte
+		  (lambda (handle)
+			(let ((buf (make-bytevector 1)))
+			  (let ((n (read-bytevector! 1 handle)))
+				(if (eof-object? n)
+				  n
+				  (vector-ref buf 0)))))))
+	  (sagittarius
+		(define read-byte
+		  (lambda (handle)
+			(let ((buf (make-bytevector 1)))
+			  (let ((n (read-bytevector! 1 handle)))
+				(if (eof-object? n)
+				  n
+				  (vector-ref buf 0)))))))
+	  (else #t))
+
+	(include "../with-exception.inc.scm")
 
 	(define safe-open-file
 	  (lambda (file-name)
+		(display "opening ") (display file-name) (newline)
 		(with-exception return
 						(try
 						  (lambda()
 							(open-input-file file-name)))
 						(catch
 						  (lambda(exn)
-							(printf "Cannot open file ~A -> ~A~%" 
+							(slprintf "Cannot open file %s -> %s\n" 
 									file-name exn)
 							(return #f))))))
 
