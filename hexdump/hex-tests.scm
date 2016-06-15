@@ -1,6 +1,6 @@
 ;; ======================================================================
-;; hextools.scm
-;; date		: 2016-03-18 22:03
+;; hex-tests.scm
+;; date		: 2016-06-15 22:41
 ;; author	: bernard
 ;;
 ;; The MIT License (MIT)
@@ -27,24 +27,17 @@
 ;;
 ;; ======================================================================
 
-;; (declare (unit hextools))
-
 (define-library 
-  (hextools)
-  (export hexgenerator)
-  (import (scheme base) (scheme write))
+  (hex-tests)
+  (import (scheme base) (slprintf)
+		  (hextools) (tester))
+
   (begin
-	;; we use a closure to have only one zeroes creation
-	;; (bad english, bad comment or both?)
-	(define hexgenerator
-	  (lambda(length)
-		(let ((zeroes (make-string length #\0)))
-
-		  (define hexint
-			(lambda(value)
-			  (let* ((s (sprintf "~A~X" zeroes value))
-					 (l (string-length s)))
-				(substring s (- l length) l))))
-
-		  hexint)))
-	))
+	(let ((hg (hexgenerator 2)))
+	  (test-begin "\n\n" "*** test hextools ***")
+	  (test-equal "(hg 0) -> 0" (hg 0) "00")
+	  (test-equal "(hg 1) -> 1" (hg 1) "01")
+	  (test-equal "(hg f) -> f" (hg f) "0f")
+	  (test-equal "(hg f0) -> f0" (hg f0) "f0")
+	  (test-end "test hextools"))))
+ 
