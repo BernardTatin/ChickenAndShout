@@ -1,6 +1,7 @@
 ;; ======================================================================
 ;; test.scm
 ;; unit tester
+;; gosh -I ../sl-printf -I . ./tester-test.scm
 ;; sagittarius -L ../sl-printf -L .  ./tester-test.scm
 ;; foment -I ../sl-printf -I .  ./tester-test.scm
 ;; ======================================================================

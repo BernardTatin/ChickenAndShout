@@ -1,17 +1,12 @@
 ;; ========================================================================
 ;; test.scm
 ;; Usage :
-;; gosh -I. -I../match test.scm
-;; chibi-scheme -I . -I ../match test.scm
+;; gosh -I ../tools -I ../bbmatch -I . ./slprintf-test.sc
 ;; sagittarius -L ../tools -L ../bbmatch -L . ./slprintf-test.scm
 ;; foment -I ../tools -I ../bbmatch -I .  ./slprintf-test.scm
-;; chicken : make clean all && ./test
-;; Note:
-;; chibi needs ln -s *.scm *.sld
-;; chicken needs : ln -s ../dir/*.so && ln -s format/*.so format.*.so
 ;; ========================================================================
 
-(import (scheme base) (slprintf) (println) (exception))
+(import (scheme base) (exception) (slprintf) (println))
 
 (define number-loop
   (lambda (N)

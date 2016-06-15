@@ -1,6 +1,5 @@
 
-;; (require-extension syntactic-closures)
-;; (load "./matchable.scm")
+;; gosh -I ../sl-printf -I . ./tester-test.scm
 ;; sagittarius -L ../sl-printf -L ../tester -L . ./bbmatch-test.scm 
 ;; foment -I ../tester  -I . -I ..  ./bbmatch-test.scm
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
