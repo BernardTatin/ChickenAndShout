@@ -5,7 +5,7 @@
 
 (define-library
  (tester)
- (import (scheme base) (scheme write) (scheme time) (sl-printf println))
+ (import (scheme base) (scheme write) (scheme time) (println))
  (export test-begin test-end test-equal)
  (begin
 
