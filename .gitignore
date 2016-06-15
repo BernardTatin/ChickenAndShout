@@ -3,6 +3,10 @@
 *.ko
 *.obj
 *.elf
+*.core
+
+# scheme
+*.sld
 
 # Precompiled Headers
 *.gch
