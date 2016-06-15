@@ -2,8 +2,8 @@
 ;; test.scm
 ;; Usage :
 ;; gosh -I. -I../match test.scm
-;; sagittarius -L../match -L. test.scm
 ;; chibi-scheme -I . -I ../match test.scm
+;; sagittarius -L ../tools -L ../bbmatch -L . ./slprintf-test.scm
 ;; foment -I ../tools -I ../bbmatch -I .  ./slprintf-test.scm
 ;; chicken : make clean all && ./test
 ;; Note:
