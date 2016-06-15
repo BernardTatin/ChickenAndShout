@@ -4,7 +4,7 @@
 ;; gosh -I. -I../match test.scm
 ;; sagittarius -L../match -L. test.scm
 ;; chibi-scheme -I . -I ../match test.scm
-;; foment -I ../match  test.scm
+;; foment -I ../tools -I ../bbmatch -I .  ./slprintf-test.scm
 ;; chicken : make clean all && ./test
 ;; Note:
 ;; chibi needs ln -s *.scm *.sld
