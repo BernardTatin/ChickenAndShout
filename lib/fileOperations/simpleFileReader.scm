@@ -61,7 +61,7 @@
 				  (vector-ref buf 0)))))))
 	  (else #t))
 
-	(include "../with-exception.inc.scm")
+	(include "../lib/with-exception.inc.scm")
 
 	(define safe-open-file
 	  (lambda (file-name)

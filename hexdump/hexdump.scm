@@ -39,67 +39,80 @@
 |#
 
 	
-(define-library 
-  (hexdump)
-  (import 
-		  (scheme base) (scheme write) (scheme process-context)
-		  (slprintf)
-		  (bbmatch) (helpers) (simpleFileReader))
+(define-library
+ (hexdump)
+ (export file-hexdump)
+ (import
+  (scheme base) (scheme write) (scheme process-context)
+  (slprintf)
+  (bbmatch) (helpers) (simpleFileReader))
 
-  (begin
-	(display "Starting...\n")
-	(include "macros.scm")
+ (begin
+   (display "Starting...\n")
+   (include "macros.scm")
 
-	(define-constant bufferLen	16)
-
-
-	(define xdump
-	  (lambda (fileReader)
-		(define ixd
-		  (lambda (address)
-			(let* ((result (fileReader))
-				   (rcount (car result))
-				   (buffer (cadr result)))
-			  (cond
-				((= 0 rcount)
-				 #f)
-				(else
-				  (slprintf "\n%08x " address)
-				  (for-each (lambda(x) (slprintf "%02x " x)) 
-							(vector->list buffer))
-				  (ixd (+ rcount address)))))))
-		(ixd 0)))
+   (define bufferLen	16)
 
 
-	(define file-hexdump
-	  (lambda (files)
-		(when (not (null? files))
-		  (let ((current-file (car files))
-				(address 0))
-			(with-exception return
-							(try
-							  (lambda()
-								(let ((fileReader (simpleFileReader current-file 16)))
-								  (if (not (null? fileReader))
-									(xdump fileReader)
-									(slprintf "cannot process %s\n" current-file)))))
-							(catch
-							  (lambda(exn)
-								(slprintf "[ERROR] Cannot process file %s -> %s\n" current-file exn)
-								(return #f))))
+   (define xdump
+     (lambda (fileReader)
+       (define ixd
+         (lambda (address)
+           (let* ((result (fileReader))
+                  (rcount (car result))
+                  (buffer (cadr result)))
+             (cond
+              ((= 0 rcount)
+               #f)
+              (else
+               (slprintf "\n%08x " address)
+               (for-each (lambda(x) (slprintf "%02x " x))
+                         (vector->list buffer))
+               (ixd (+ rcount address)))))))
+       (ixd 0)))
 
-			(slprintf "\n")
-			(file-hexdump (cdr files))))))
 
-	(define main
-	  (lambda ()
-		(let ((args (cdr (command-line))))
-		  (slprintf "args ... %s\n" args)
-		  (match args
-				 (() (dohelp 0))
-				 (("--help") (dohelp 0))
-				 ;; (("--help" _) (dohelp 0))
-				 (("--version") (doversion 0))
-				 ;; (("--version" _) (doversion 0))
-				 ('(f o) (file-hexdump args))))))
-	))
+   (define file-hexdump
+     (lambda (files)
+       (display "files --> ") (display files) (newline)
+      (exit 0)
+       (when (not (null? files))
+         (let ((current-file (car files))
+               (address 0))
+           (with-exception return
+                           (try
+                            (lambda()
+                              (let ((fileReader (simpleFileReader current-file 16)))
+                                (if (not (null? fileReader))
+                                    (xdump fileReader)
+                                    (slprintf "cannot process %s\n" current-file)))))
+                           (catch
+                               (lambda(exn)
+                                 (slprintf "[ERROR] Cannot process file %s -> %s\n" current-file exn)
+                                 (return #f))))
+
+           (slprintf "\n")
+           (file-hexdump (cdr files))))))
+
+   ))
+
+(import
+ (scheme base) (scheme write) (scheme process-context)
+ (slprintf) (hexdump)
+ (bbmatch) (helpers) (simpleFileReader))
+
+(define main
+  (lambda (args)
+    (let ((_args (cdr (command-line))))
+      ;; (slprintf "cmds ... %s\n" (command-line))
+      ;; (slprintf "args ... %s\n" args)
+      (for-each (lambda(s) (slprintf "arg -> %s\n" s)) args)
+      (match (cdr args)
+       (() (dohelp 0))
+       (("--help") (dohelp 0))
+       ;; (("--help" _) (dohelp 0))
+       (("--version") (doversion 0))
+       (("--version" _) (doversion 0))
+       (_ (file-hexdump (cdr args)))))))
+
+(main (command-line))
