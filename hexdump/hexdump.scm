@@ -75,7 +75,7 @@
    (define file-hexdump
      (lambda (files)
        (display "files --> ") (display files) (newline)
-      (exit 0)
+       (exit 0)
        (when (not (null? files))
          (let ((current-file (car files))
                (address 0))
