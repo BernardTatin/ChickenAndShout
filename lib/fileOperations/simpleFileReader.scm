@@ -46,16 +46,6 @@
 	  (gauche (define read-byte read-u8))
 	  (foment (define read-byte read-u8))
 	  (sagittarius (define read-byte read-u8))
-      #|
-	  (sagittarius
-		(define read-byte
-		  (lambda (handle)
-			(let ((buf (make-bytevector 1)))
-			  (let ((n (read-bytevector! 1 handle)))
-				(if (eof-object? n)
-				  n
-				  (vector-ref buf 0)))))))
-      |#
 	  (else #t))
 
     (cond-expand 
@@ -84,11 +74,11 @@
               (cond
                ((eof-object? c)
                 ;; (slprintf "EOF !!! position %08x count %02d buffer-len %02d\n" position count buffer-len)
-                (close-input-port fHandle)
                 (list count buffer))
-               ((= count buffer-len)
+               ((= count (- buffer-len 1))
                 ;; (slprintf "count == buffer-len !!! position %08x count %02d buffer-len %02d\n" position count buffer-len)
-                (list count buffer))
+                (vector-set! buffer position c)
+                (list (+ count 1) buffer))
                (else
                 ;; (slprintf "VECTOR SET !!! position %08x count %02d buffer-len %02d\n" position count buffer-len)
                 (vector-set! buffer position c)
@@ -106,5 +96,10 @@
 		  (if (not fHandle)
 			'()
 			(lambda ()
-			  (fill-buffer fHandle buffer buffer-size))))))
+			  (let ((r (fill-buffer fHandle buffer buffer-size)))
+                (when (= 0 (car r))
+                  (close-input-port fHandle))
+                r)
+              
+              )))))
 	))
