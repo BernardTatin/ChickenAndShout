@@ -49,7 +49,7 @@
 
  (begin
    (display "Starting...\n")
-   (include "macros.scm")
+   (include "../lib/with-exception.inc.scm")
 
    (define bufferLen	16)
 

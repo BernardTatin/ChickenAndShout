@@ -54,7 +54,8 @@
 				  (vector-ref buf 0)))))))
 	  (else #t))
 
-	;; (include "with-exception.inc.scm")
+	(include "../lib/with-exception.inc.scm")
+    #|
     (define-syntax with-exception
       (syntax-rules (try catch)
         ((with-exception (try <dotry>) (catch <docatch>))
@@ -64,6 +65,7 @@
             (let ((r <dotry>))
               (slprintf "<end of dotry>\n")
               r) )))))
+    |#
 
 	(define safe-open-file
 	  (lambda (file-name)
