@@ -39,7 +39,12 @@
   (syntax-rules (try catch)
     ((with-exception (try <dotry>) (catch <docatch>))
      (guard
-      (exc (else <docatch>))
+      (exc 
+       (else
+        (display "[ERROR] --> ")
+        (display exc)
+        (newline)
+        <docatch>))
       (begin
         (let ((r <dotry>))
           (slprintf "<end of dotry>\n")
