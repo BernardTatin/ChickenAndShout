@@ -46,8 +46,6 @@
         (newline)
         <docatch>))
       (begin
-        (let ((r <dotry>))
-          (slprintf "<end of dotry>\n")
-          r) )))))
+         <dotry>)))))
 
 
