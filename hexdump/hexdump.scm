@@ -64,12 +64,23 @@
                   (buffer (cadr result)))
              (cond
               ((= 0 rcount)
-               (slprintf "xdump: return 0\n")
+               ;; (slprintf "xdump: return 0\n")
                #f)
               (else
-               (slprintf "\n%08x " address)
-               (for-each (lambda(x) (slprintf "%02x " x))
-                         (vector->list buffer))
+               (slprintf "%08x " address)
+               (let ((list-of-chars (vector->list buffer)))
+                 (for-each (lambda(x) (slprintf "%02x " x))
+                           list-of-chars)
+                 (display " '")
+                 (for-each (lambda(x)
+                             (cond
+                              ((< x 42) (display #\.))
+                              ((> x 126) (display #\.))
+                              (else (display (integer->char x)))
+                              ))
+                           list-of-chars)
+                 (display "'\n")
+                 )
                (ixd (+ rcount address)))))))
        (ixd 0)))
 
