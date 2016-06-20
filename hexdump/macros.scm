@@ -33,11 +33,9 @@
 ;;; call-with-current-continuation help us to prevent this
 ;;; PS: must find better names? 
 ;;;
-(define-syntax with-exception
-  (syntax-rules (try catch)
-	((with-exception <return> (try <dotry>) (catch <docatch>))
-	 (call-with-current-continuation
-	   (lambda (<return>)
-		 (with-exception-handler
-		   <docatch>
-		   <dotry>))))))
+    (define-syntax with-exception
+      (syntax-rules (try catch)
+        ((with-exception (try <dotry>) (catch <docatch>))
+         (guard 
+          (exc (else <docatch>))
+          (begin <dotry>)))))

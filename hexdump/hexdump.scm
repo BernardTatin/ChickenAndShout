@@ -58,11 +58,13 @@
      (lambda (fileReader)
        (define ixd
          (lambda (address)
+           (slprintf "xdump %08x\n" address)
            (let* ((result (fileReader))
                   (rcount (car result))
                   (buffer (cadr result)))
              (cond
               ((= 0 rcount)
+               (slprintf "xdump: return 0\n")
                #f)
               (else
                (slprintf "\n%08x " address)
@@ -75,21 +77,18 @@
    (define file-hexdump
      (lambda (files)
        (display "files --> ") (display files) (newline)
-       (exit 0)
+       ;; (exit 0)
        (when (not (null? files))
          (let ((current-file (car files))
                (address 0))
-           (with-exception return
-                           (try
-                            (lambda()
+           (with-exception (try
                               (let ((fileReader (simpleFileReader current-file 16)))
                                 (if (not (null? fileReader))
                                     (xdump fileReader)
-                                    (slprintf "cannot process %s\n" current-file)))))
+                                    (slprintf "cannot process %s\n" current-file))))
                            (catch
-                               (lambda(exn)
-                                 (slprintf "[ERROR] Cannot process file %s -> %s\n" current-file exn)
-                                 (return #f))))
+                                 (slprintf "[ERROR] Cannot process file %s -> ??\n" current-file)
+                                 ))
 
            (slprintf "\n")
            (file-hexdump (cdr files))))))

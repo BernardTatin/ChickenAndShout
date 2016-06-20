@@ -33,7 +33,7 @@
 (define-library 
   (simpleFileReader)
   (export simpleFileReader fill-buffer safe-open-file)
-  (import (scheme base) (scheme write) (scheme process-context) 
+  (import (scheme base) (scheme write) (scheme read) (scheme process-context) 
 		  (scheme file) (slprintf))
 
 
@@ -43,14 +43,7 @@
 		(begin
 		  (require-extension matchable)	;; for match
 		  (declare (uses extras))))
-	  (foment
-		(define read-byte
-		  (lambda (handle)
-			(let ((buf (make-bytevector 1)))
-			  (let ((n (read-bytevector! 1 handle)))
-				(if (eof-object? n)
-				  n
-				  (vector-ref buf 0)))))))
+	  (foment (define read-byte read-utf8))
 	  (sagittarius
 		(define read-byte
 		  (lambda (handle)
@@ -61,36 +54,53 @@
 				  (vector-ref buf 0)))))))
 	  (else #t))
 
-	(include "../lib/with-exception.inc.scm")
+	;; (include "with-exception.inc.scm")
+    (define-syntax with-exception
+      (syntax-rules (try catch)
+        ((with-exception (try <dotry>) (catch <docatch>))
+         (guard 
+          (exc (else <docatch>))
+          (begin 
+            (let ((r <dotry>))
+              (slprintf "<end of dotry>\n")
+              r) )))))
 
 	(define safe-open-file
 	  (lambda (file-name)
 		(display "opening ") (display file-name) (newline)
-		(with-exception return
-						(try
-						  (lambda()
-							(open-input-file file-name)))
+		(with-exception (try
+							(open-input-file file-name))
 						(catch
-						  (lambda(exn)
-							(slprintf "Cannot open file %s -> %s\n" 
-									file-name exn)
-							(return #f))))))
+							(slprintf "Cannot open file %s -> ??\n" 
+									file-name)
+							))))
 
-	(define fill-buffer
-	  (lambda (fHandle buffer buffer-len)
-		(define ifill 
-		  (lambda (position count)
-			(let ((c (read-byte fHandle)))
-			  (cond
-				((eof-object? c)
-				 (close-input-port fHandle)
-				 (list count buffer))
-				((= count buffer-len)
-				 (list count buffer))
-				(else
-				  (vector-set! buffer position c)
-				  (ifill (+ 1 position) (+ 1 count)))))))
-		(ifill 0 0)))
+    (define fill-buffer
+      (lambda (fHandle buffer buffer-len)
+
+        (let ((ifill
+               (lambda (position count)
+                 (let ((c (read-byte fHandle)))
+                   (slprintf "position %08x count %02d buffer-len %02d\n" position count buffer-len)
+                   (slprintf "get c %02x!!!\n" c)
+                   (cond
+                    ((eof-object? c)
+                     (slprintf "EOF !!! position %08x count %02d buffer-len %02d\n" position count buffer-len)
+                     (close-input-port fHandle)
+                     (list count buffer))
+                    ((= count buffer-len)
+                     (slprintf "count == buffer-len !!! position %08x count %02d buffer-len %02d\n" position count buffer-len)
+                     (list count buffer))
+                    (else
+                     (slprintf "VECTOR SET !!! position %08x count %02d buffer-len %02d\n" position count buffer-len)
+                     (vector-set! buffer position c)
+                     (ifill (+ 1 position) (+ 1 count))))))))
+
+              (slprintf "in fill-buffer\n")
+              (let ((r (ifill 0 0)))
+                (slprintf "fin de ifill\n")
+                r))
+        ))
 
 
 	(define simpleFileReader
