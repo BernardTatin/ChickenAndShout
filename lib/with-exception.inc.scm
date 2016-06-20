@@ -37,10 +37,17 @@
 ;;;
 (define-syntax with-exception
   (syntax-rules (try catch)
-	((with-exception <return> (try <dotry>) (catch <docatch>))
-	 (call-with-current-continuation
-	   (lambda (<return>)
-		 (with-exception-handler
-		   <docatch>
-		   <dotry>))))))
+    ((with-exception (try <dotry>) (catch <docatch>))
+     (guard
+      (exc 
+       (else
+        (display "[ERROR] --> ")
+        (display exc)
+        (newline)
+        <docatch>))
+      (begin
+        (let ((r <dotry>))
+          (slprintf "<end of dotry>\n")
+          r) )))))
+
 

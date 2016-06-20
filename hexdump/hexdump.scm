@@ -49,7 +49,7 @@
 
  (begin
    (display "Starting...\n")
-   (include "macros.scm")
+   (include "../lib/with-exception.inc.scm")
 
    (define bufferLen	16)
 
@@ -58,7 +58,7 @@
      (lambda (fileReader)
        (define ixd
          (lambda (address)
-           (slprintf "xdump %08x\n" address)
+           ;; (slprintf "xdump %08x\n" address)
            (let* ((result (fileReader))
                   (rcount (car result))
                   (buffer (cadr result)))
