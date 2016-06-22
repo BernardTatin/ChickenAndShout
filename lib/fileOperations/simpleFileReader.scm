@@ -57,7 +57,9 @@
 	  (lambda (file-name)
 		(display "opening ") (display file-name) (newline)
 		(with-exception (try
-							(open-input-file file-name :transcoder #f))
+                         (cond-expand
+                          (foment (open-binary-input-file file-name))
+                          (else (open-input-file file-name :transcoder #f))))
 						(catch
 							(slprintf "Cannot open file %s -> ??\n" 
 									file-name)
