@@ -29,18 +29,20 @@
 
 ;; r7rs ready -
 
-;;; NOTE: 
-;;; with-exception-handler goes back where the exception raise
-;;; so we create an infinite loop
-;;; call-with-current-continuation help us to prevent this
-;;; PS: must find better names? 
-;;;
 (define-syntax with-exception
   (syntax-rules (try catch)
-	((with-exception <return> (try <dotry>) (catch <docatch>))
-	 (call-with-current-continuation
-	   (lambda (<return>)
-		 (with-exception-handler
-		   <docatch>
-		   <dotry>))))))
+    ((with-exception (try <dotry>) (catch <docatch>))
+     (guard
+      (exc
+       (else
+        (begin
+          (display "[ERROR] --> ")
+          (display exc)
+          (newline)
+          <docatch>
+          )
+        ))
+      (begin
+        <dotry>)))))
+
 
