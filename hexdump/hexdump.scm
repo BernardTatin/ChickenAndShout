@@ -117,7 +117,7 @@
       (match (cdr args)
        (() (dohelp 0))
        (("--help") (dohelp 0))
-       ;; (("--help" _) (dohelp 0))
+       (("--help" _) (dohelp 0))
        (("--version") (doversion 0))
        (("--version" _) (doversion 0))
        (_ (file-hexdump (cdr args)))))))
