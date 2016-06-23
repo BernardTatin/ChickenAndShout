@@ -48,7 +48,6 @@
   (bbmatch) (helpers) (simpleFileReader))
 
  (begin
-   (display "Starting...\n")
    (include "../lib/with-exception.inc.scm")
 
    (define bufferLen	16)
@@ -73,11 +72,12 @@
                   real-buffer)
                  (display " '")
                  (vector-for-each (lambda(x)
-                                    (cond
-                                     ((< x 42) (display #\.))
-                                     ((> x 126) (display #\.))
-                                     (else (display (integer->char x)))
-                                     ))
+                                    (display
+                                     (cond
+                                      ((< x 42) #\.)
+                                      ((> x 126) #\.)
+                                      (else (integer->char x))
+                                      )))
                   real-buffer)
                  (display "'\n")
                  )
@@ -87,19 +87,15 @@
 
    (define file-hexdump
      (lambda (files)
-       ;; (display "files --> ") (display files) (newline)
-       ;; (exit 0)
        (when (not (null? files))
          (let ((current-file (car files))
                (address 0))
            (with-exception (try
-                              (let ((fileReader (simpleFileReader current-file bufferLen)))
-                                (if fileReader
-                                    (xdump fileReader)
-                                    (slprintf "cannot process %s !!!\n" current-file))))
+                            (let ((fileReader (simpleFileReader current-file bufferLen)))
+                              (when fileReader
+                                (xdump fileReader))))
                            (catch
-                                 (slprintf "[ERROR] Cannot process file %s -> oh ??\n" current-file)
-                                 ))
+                               (slprintf "[ERROR] Cannot process file %s\n" current-file)))
 
            (slprintf "\n")
            (file-hexdump (cdr files))))))

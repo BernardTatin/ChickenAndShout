@@ -39,7 +39,7 @@
           (display "[ERROR] --> ")
           (display exc)
           (newline)
-          (begin <docatch>)
+          <docatch>
           )
         ))
       (begin
