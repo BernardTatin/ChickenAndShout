@@ -94,11 +94,11 @@
                (address 0))
            (with-exception (try
                               (let ((fileReader (simpleFileReader current-file bufferLen)))
-                                (if (not (null? fileReader))
+                                (if fileReader
                                     (xdump fileReader)
-                                    (slprintf "cannot process %s\n" current-file))))
+                                    (slprintf "cannot process %s !!!\n" current-file))))
                            (catch
-                                 (slprintf "[ERROR] Cannot process file %s -> ??\n" current-file)
+                                 (slprintf "[ERROR] Cannot process file %s -> oh ??\n" current-file)
                                  ))
 
            (slprintf "\n")

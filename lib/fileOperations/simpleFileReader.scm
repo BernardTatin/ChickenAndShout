@@ -53,17 +53,21 @@
      (else (include "../lib/with-exception.inc.scm")))
 	
 
-	(define safe-open-file
-	  (lambda (file-name)
-		(display "opening ") (display file-name) (newline)
-		(with-exception (try
+    (define safe-open-file
+      (lambda (file-name)
+        (display "opening ") (display file-name) (newline)
+        (with-exception (try
                          (cond-expand
                           (foment (open-binary-input-file file-name))
                           (else (open-input-file file-name :transcoder #f))))
-						(catch
-							(slprintf "Cannot open file %s -> ??\n" 
-									file-name)
-							))))
+                        (catch
+                            (begin
+                              (slprintf "Cannot open file %s -> ??\n"
+                               file-name)
+                              (slprintf "nothing to return..\n")
+                              #f
+                              )
+                            ))))
 
     (define fill-buffer
       (lambda (fHandle buffer buffer-len)
@@ -96,7 +100,7 @@
 		(let ((buffer (make-vector buffer-size))
 			  (fHandle (safe-open-file file-name)))
 		  (if (not fHandle)
-			'()
+			#f
 			(lambda ()
 			  (let ((r (fill-buffer fHandle buffer buffer-size)))
                 (when (= 0 (car r))
