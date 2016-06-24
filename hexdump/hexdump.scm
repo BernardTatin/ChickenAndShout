@@ -104,7 +104,8 @@
 
 (import
  (scheme base) (scheme write) (scheme process-context)
- (slprintf) (hexdump)
+ (println) (slprintf)
+ (hexdump)
  (bbmatch) (helpers) (simpleFileReader))
 
 (define main

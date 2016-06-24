@@ -31,7 +31,8 @@
 (define-library
   (slprintf)
   (export slprintf)
-  (import (scheme base) (scheme write) (scheme char) (println) (exception)
+  (import (scheme base) (scheme write) (scheme char) 
+          (exception)
           (format format-string) (format format-int) (format format-char))
   (begin
 

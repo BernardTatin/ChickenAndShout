@@ -34,7 +34,8 @@
  (simpleFileReader)
  (export simpleFileReader fill-buffer safe-open-file)
  (import (scheme base) (scheme write) (scheme read) (scheme process-context)
-         (scheme file) (slprintf))
+         (println) (slprintf) 
+         (scheme file))
 
 
  (begin

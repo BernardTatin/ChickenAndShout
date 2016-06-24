@@ -33,7 +33,7 @@
  (import (scheme base) (println))
  (export raise-exception print-exception)
  (begin
-   
+ 
    (define-record-type <exception>
      (make-exception type     ;; error, fatal error, warning...
                      source   ;; file, function
@@ -42,7 +42,7 @@
      (type exception-type)
      (source exception-source)
      (text exception-text))
-   
+
    (define raise-exception
      (lambda (type source text)
        (raise (make-exception type source text))))
