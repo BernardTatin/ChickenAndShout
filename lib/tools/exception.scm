@@ -41,9 +41,7 @@
          (exc
           (else
            (begin
-             (display "[ERROR] --> ")
-             (display exc)
-             (newline)
+             (println "[SYS ERROR] --> " exc)
              <docatch>
              )
            ))
