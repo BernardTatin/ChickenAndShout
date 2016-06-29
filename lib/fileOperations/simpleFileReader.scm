@@ -34,7 +34,7 @@
  (simpleFileReader)
  (export simpleFileReader fill-buffer safe-open-file)
  (import (scheme base) (scheme write) (scheme read) (scheme process-context)
-         (println) (slprintf) 
+         (println) (slprintf) (exception)
          (scheme file))
 
 
@@ -47,9 +47,9 @@
     ((or gauche foment sagittarius) (define read-byte read-u8))
     (else #t))
 
-   (cond-expand
-    (foment (include "../with-exception.inc.scm"))
-    (else (include "../lib/with-exception.inc.scm")))
+   ;; (cond-expand
+    ;; (foment (include "../with-exception.inc.scm"))
+    ;; (else (include "../lib/with-exception.inc.scm")))
 
 
    (define safe-open-file

@@ -27,28 +27,16 @@
 ;;
 ;; ======================================================================
 
-#|
-;; chicken specific, call for libs
-(require-extension matchable)	;; for match
-(declare (uses extras))
-;; local libs
-(declare (uses helpers))
-(declare (uses hextools))
-(declare (uses file-operations))
-(include "macros.scm")
-|#
-
-	
 (define-library
  (hexdump)
  (export file-hexdump)
  (import
   (scheme base) (scheme write) (scheme process-context)
-  (slprintf)
+  (slprintf) (exception)
   (bbmatch) (helpers) (simpleFileReader))
 
  (begin
-   (include "../lib/with-exception.inc.scm")
+   ;; (include "../lib/with-exception.inc.scm")
 
    (define bufferLen	16)
 

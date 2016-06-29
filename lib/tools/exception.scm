@@ -30,14 +30,30 @@
 
 (define-library
  (exception)
- (import (scheme base) (println))
- (export raise-exception print-exception)
+ (import (scheme base) (scheme write) (println))
+ (export with-exception raise-exception print-exception)
  (begin
- 
+
+   (define-syntax with-exception
+     (syntax-rules (try catch)
+       ((with-exception (try <dotry>) (catch <docatch>))
+        (guard
+         (exc
+          (else
+           (begin
+             (display "[ERROR] --> ")
+             (display exc)
+             (newline)
+             <docatch>
+             )
+           ))
+         (begin
+           <dotry>)))))
+
    (define-record-type <exception>
      (make-exception type     ;; error, fatal error, warning...
-                     source   ;; file, function
-                     text)
+      source   ;; file, function
+      text)
      exception?
      (type exception-type)
      (source exception-source)
@@ -46,15 +62,15 @@
    (define raise-exception
      (lambda (type source text)
        (raise (make-exception type source text))))
-   
+
    (define print-exception
      (lambda (exception)
        (cond
         ((string? exception) (println "ERROR: " exception))
-        ((exception? exception) (println (exception-type exception) ": " 
-                                         (exception-source exception) " - " 
+        ((exception? exception) (println (exception-type exception) ": "
+                                         (exception-source exception) " - "
                                          (exception-text exception)))
         (else (println "ERROR of unexpected type: " exception)))))
-   
+
    ))
- 
+
