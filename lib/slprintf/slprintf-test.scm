@@ -33,7 +33,7 @@
 ;; foment -I ../tools -I ../bbmatch -I .  ./slprintf-test.scm
 ;; ========================================================================
 
-(import (scheme base) (exception) (slprintf) (println))
+(import (scheme base) (tools exception) (slprintf slprintf) (slprintf println))
 
 (define number-loop
   (lambda (N)

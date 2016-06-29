@@ -29,8 +29,8 @@
 
 (define-library 
   (hex-tests)
-  (import (scheme base) (scheme write) (slprintf)
-		  (hextools) (tester))
+  (import (scheme base) (scheme write) (slprintf slprintf)
+		  (hextools) (tester tester))
 
   (begin
 	(let ((hg (hexgenerator 2)))

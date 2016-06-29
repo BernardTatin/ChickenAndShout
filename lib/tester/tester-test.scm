@@ -33,7 +33,7 @@
 ;; foment -I ../sl-printf -I .  ./tester-test.scm
 ;; ======================================================================
 
-(import (scheme base) (tester))
+(import (scheme base) (tester tester))
 
 (test-begin "\n\n" "*** test tester ***")
 (test-equal "'(+ 1 2)" '(+ 1 2) 3)

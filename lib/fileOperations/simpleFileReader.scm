@@ -27,14 +27,11 @@
 ;;
 ;; ======================================================================
 
-;; (declare (unit file-operations))
-;; (declare (uses extras))
-
 (define-library
- (simpleFileReader)
+ (fileOperations simpleFileReader)
  (export simpleFileReader fill-buffer safe-open-file)
  (import (scheme base) (scheme write) (scheme read) (scheme process-context)
-         (println) (slprintf) (exception)
+         (slprintf println) (slprintf slprintf) (tools exception)
          (scheme file))
 
 
@@ -47,17 +44,13 @@
     ((or gauche foment sagittarius) (define read-byte read-u8))
     (else #t))
 
-   ;; (cond-expand
-    ;; (foment (include "../with-exception.inc.scm"))
-    ;; (else (include "../lib/with-exception.inc.scm")))
-
-
    (define safe-open-file
      (lambda (file-name)
        (display "opening ") (display file-name) (newline)
        (with-exception (try
                         (cond-expand
                          (foment (open-binary-input-file file-name))
+                         (gauche (open-input-file file-name))
                          (else (open-input-file file-name :transcoder #f))))
                        (catch
                            (begin

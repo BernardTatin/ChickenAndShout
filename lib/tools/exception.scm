@@ -29,8 +29,8 @@
 ;; ======================================================================
 
 (define-library
- (exception)
- (import (scheme base) (scheme write) (println))
+ (tools exception)
+ (import (scheme base) (scheme write) (slprintf println))
  (export with-exception raise-exception print-exception)
  (begin
 

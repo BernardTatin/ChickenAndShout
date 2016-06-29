@@ -24,7 +24,11 @@
 ;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
-;;
+;; 
+;; Test :
+;;		sagittarius -r 7 -L ../lib -L . ./hexdump.scm  ../**/*.md pipo
+;;		gosh -r 7 -I ../lib -I . ./hexdump.scm  ../**/*.md pipo
+;;		foment -I ../lib -I . ./hexdump.scm  ../**/*.md pipo
 ;; ======================================================================
 
 (define-library
@@ -32,11 +36,10 @@
  (export file-hexdump)
  (import
   (scheme base) (scheme write) (scheme process-context)
-  (slprintf) (exception)
-  (bbmatch) (helpers) (simpleFileReader))
+  (slprintf slprintf) (tools exception)
+  (bbmatch bbmatch) (helpers) (fileOperations simpleFileReader))
 
  (begin
-   ;; (include "../lib/with-exception.inc.scm")
 
    (define bufferLen	16)
 
@@ -92,9 +95,9 @@
 
 (import
  (scheme base) (scheme write) (scheme process-context)
- (println) (slprintf)
+ (slprintf println) (slprintf slprintf)
  (hexdump)
- (bbmatch) (helpers) (simpleFileReader))
+ (bbmatch bbmatch) (helpers) (fileOperations simpleFileReader))
 
 (define main
   (lambda (args)
