@@ -44,7 +44,7 @@
 
 
 (define-library 
-  (bbmatch)
+  (bbmatch bbmatch)
   (export match match-lambda match-let match-let*)
   (import (scheme base) (scheme time))
   (begin

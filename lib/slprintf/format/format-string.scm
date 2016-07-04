@@ -29,9 +29,10 @@
 ;; ========================================================================
 
 (define-library 
-  (format format-string)
+  (slprintf format format-string)
   (export format-string)
-  (import (scheme base) (bbmatch) (exception))
+  (import (scheme base) 
+		  (bbmatch bbmatch) (tools exception))
   (begin
 
 	(define format-string
