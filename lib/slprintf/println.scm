@@ -29,7 +29,7 @@
 ;; ========================================================================
 
 (define-library 
-  (println)
+  (slprintf println)
   (export println err-println)
   (import (scheme base) (scheme write))
 
@@ -43,3 +43,4 @@
 	  (for-each display args)
 	  (newline))
 	))
+

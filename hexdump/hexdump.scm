@@ -24,31 +24,22 @@
 ;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
-;;
+;; 
+;; Test :
+;;		sagittarius -r 7 -L ../lib -L . ./hexdump.scm  ../**/*.md pipo
+;;		gosh -r 7 -I ../lib -I . ./hexdump.scm  ../**/*.md pipo
+;;		foment -I ../lib -I . ./hexdump.scm  ../**/*.md pipo
 ;; ======================================================================
 
-#|
-;; chicken specific, call for libs
-(require-extension matchable)	;; for match
-(declare (uses extras))
-;; local libs
-(declare (uses helpers))
-(declare (uses hextools))
-(declare (uses file-operations))
-(include "macros.scm")
-|#
-
-	
 (define-library
  (hexdump)
  (export file-hexdump)
  (import
   (scheme base) (scheme write) (scheme process-context)
-  (slprintf)
-  (bbmatch) (helpers) (simpleFileReader))
+  (slprintf slprintf) (tools exception)
+  (bbmatch bbmatch) (helpers) (fileOperations fileReader))
 
  (begin
-   (include "../lib/with-exception.inc.scm")
 
    (define bufferLen	16)
 
@@ -57,13 +48,10 @@
      (lambda (fileReader)
        (define ixd
          (lambda (address)
-           (let* ((result (fileReader))
-                  (rcount (car result))
-                  (buffer (cadr result)))
-             (cond
-              ((= 0 rcount)
-               #f)
-              (else
+           (let ((rs (fileReader)))
+             (match rs
+              ((0 _) #f)
+              ((rcount buffer)
                (slprintf "%08x " address)
                (let ((real-buffer (if (< rcount bufferLen)
                                       (vector-copy buffer 0 rcount)
@@ -81,7 +69,9 @@
                   real-buffer)
                  (display "'\n")
                  )
-               (ixd (+ rcount address)))))))
+               (ixd (+ rcount address)))
+			  )
+			 )))
        (ixd 0)))
 
 
@@ -91,7 +81,7 @@
          (let ((current-file (car files))
                (address 0))
            (with-exception (try
-                            (let ((fileReader (simpleFileReader current-file bufferLen)))
+                            (let ((fileReader (fileReader current-file bufferLen)))
                               (when fileReader
                                 (xdump fileReader))))
                            (catch
@@ -104,8 +94,9 @@
 
 (import
  (scheme base) (scheme write) (scheme process-context)
- (slprintf) (hexdump)
- (bbmatch) (helpers) (simpleFileReader))
+ (slprintf println) (slprintf slprintf)
+ (hexdump)
+ (bbmatch bbmatch) (helpers) (fileOperations fileReader))
 
 (define main
   (lambda (args)

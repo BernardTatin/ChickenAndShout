@@ -30,8 +30,8 @@
 ;; ======================================================================
 
 (define-library
- (tester)
- (import (scheme base) (scheme write) (scheme time) (println))
+ (tester tester)
+ (import (scheme base) (scheme write) (scheme time) (slprintf println))
  (export test-begin test-end test-equal)
  (begin
 
