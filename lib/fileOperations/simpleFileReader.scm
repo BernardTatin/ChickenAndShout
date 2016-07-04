@@ -30,9 +30,8 @@
 (define-library
  (fileOperations simpleFileReader)
  (export simpleFileReader fill-buffer safe-open-file)
- (import (scheme base) (scheme write) (scheme read) (scheme process-context)
-         (slprintf println) (slprintf slprintf) (tools exception)
-         (scheme file))
+ (import (scheme base) (scheme read) (scheme file)
+         (tools exception))
 
 
  (begin
@@ -46,7 +45,6 @@
 
    (define safe-open-file
      (lambda (file-name)
-       (display "opening ") (display file-name) (newline)
        (with-exception (try
                         (cond-expand
                          (foment (open-binary-input-file file-name))
