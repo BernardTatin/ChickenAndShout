@@ -29,28 +29,16 @@
 
 (define-library
   (fileOperations fileReader)
-  (export fileReader fill-buffer safe-open-file)
+  (export fileReader)
   (import (scheme base) (scheme read) (scheme file)
-		  (tools exception))
+		  (bbmatch bbmatch)
+		  (fileOperations safe-open-file) (tools exception))
 
 
   (begin
 	(cond-expand
 	  ((or gauche foment sagittarius) (define read-byte read-u8))
 	  (else #t))
-
-	(define safe-open-file
-	  (lambda (file-name)
-		(with-exception (try
-						  (cond-expand
-							(foment (open-binary-input-file file-name))
-							(gauche (open-input-file file-name))
-							(else (open-input-file file-name :transcoder #f))))
-						(catch
-						  (begin
-							#f
-							)
-						  ))))
 
 	(define fileReader
 	  (lambda (file-name buffer-size)
@@ -72,17 +60,19 @@
 					  (else
 						(vector-set! buffer position c)
 						(ifill (+ 1 position) (+ 1 count)))))))
-			  
-			  (letrec ((loop (lambda(position count)
-							   (let* ((rs (ifill position count)))
-								 (if (> (car rs) 0)
-								   (begin
+
+			  (letrec ((loop 
+						 (lambda(position count)
+						   (let ((rs (ifill position count)))
+							 (match rs
+									((0 _) (return (list 0 #f)))
+									((count buf)
 									 (set! return (call-with-current-continuation
 													(lambda(resume-here)
 													  (set! control-state resume-here)
 													  (return rs))))
 									 (loop 0 0))
-								   (return (list 0 #f)))))))
+									)))))
 				(loop 0 0)))))
 
 		(define (generator)

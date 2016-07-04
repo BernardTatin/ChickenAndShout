@@ -48,13 +48,10 @@
      (lambda (fileReader)
        (define ixd
          (lambda (address)
-           (let* ((result (fileReader))
-                  (rcount (car result))
-                  (buffer (cadr result)))
-             (cond
-              ((= 0 rcount)
-               #f)
-              (else
+           (let ((rs (fileReader)))
+             (match rs
+              ((0 _) #f)
+              ((rcount buffer)
                (slprintf "%08x " address)
                (let ((real-buffer (if (< rcount bufferLen)
                                       (vector-copy buffer 0 rcount)
@@ -72,7 +69,9 @@
                   real-buffer)
                  (display "'\n")
                  )
-               (ixd (+ rcount address)))))))
+               (ixd (+ rcount address)))
+			  )
+			 )))
        (ixd 0)))
 
 
