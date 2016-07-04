@@ -37,7 +37,7 @@
  (import
   (scheme base) (scheme write) (scheme process-context)
   (slprintf slprintf) (tools exception)
-  (bbmatch bbmatch) (helpers) (fileOperations simpleFileReader))
+  (bbmatch bbmatch) (helpers) (fileOperations fileReader))
 
  (begin
 
@@ -82,7 +82,7 @@
          (let ((current-file (car files))
                (address 0))
            (with-exception (try
-                            (let ((fileReader (simpleFileReader current-file bufferLen)))
+                            (let ((fileReader (fileReader current-file bufferLen)))
                               (when fileReader
                                 (xdump fileReader))))
                            (catch
@@ -97,7 +97,7 @@
  (scheme base) (scheme write) (scheme process-context)
  (slprintf println) (slprintf slprintf)
  (hexdump)
- (bbmatch bbmatch) (helpers) (fileOperations simpleFileReader))
+ (bbmatch bbmatch) (helpers) (fileOperations fileReader))
 
 (define main
   (lambda (args)
