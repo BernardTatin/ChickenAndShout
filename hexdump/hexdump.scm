@@ -43,51 +43,52 @@
 
    (define bufferLen	16)
 
-   (define ixdump
-	 (lambda (rs)
-	   (match rs
-			  ((0 _) #f)
-			  ((rcount buffer)
-			   ;; (slprintf "%08x " address)
-			   (let ((real-buffer (if (< rcount bufferLen)
-									(vector-copy buffer 0 rcount)
-									buffer)))
-				 (vector-for-each (lambda(x) (slprintf "%02x " x))
-								  real-buffer)
-				 (display " '")
-				 (vector-for-each (lambda(x)
-									(display
-									  (cond
-										((< x 42) #\.)
-										((> x 126) #\.)
-										(else (integer->char x))
-										)))
-								  real-buffer)
-				 (display "'\n"))
-			   #t))))
-
-	
-   (define xdump (lambda (fileReader)
-				   (define ixd (lambda (address)
-								 (when (fileReader)
-								   (ixd (+ address 16)))))
-				   (ixd 0)))
-
 
    (define file-hexdump
-     (lambda (files)
-       (when (not (null? files))
-         (let ((current-file (car files))
-               (address 0))
-           (with-exception (try
-                            (let ((fileReader (binFileReader current-file bufferLen ixdump)))
-                              (when fileReader
-                                (xdump fileReader))))
-                           (catch
-                               (slprintf "[ERROR] Cannot process file %s\n" current-file)))
+	 (lambda (files)
+	   (when (not (null? files))
+		 (let ((current-file (car files))
+			   (address 0))
+		   (define ixdump
+			 (lambda (rs)
+			   (match rs
+					  ((0 _) #f)
+					  ((rcount buffer)
+					   (slprintf "%08x " address)
+					   (let ((real-buffer (if (< rcount bufferLen)
+											(vector-copy buffer 0 rcount)
+											buffer)))
+						 (vector-for-each (lambda(x) (slprintf "%02x " x))
+										  real-buffer)
+						 (display " '")
+						 (vector-for-each (lambda(x)
+											(display
+											  (cond
+												((< x 42) #\.)
+												((> x 126) #\.)
+												(else (integer->char x))
+												)))
+										  real-buffer)
+						 (display "'\n"))
+					   #t))))
 
-           (slprintf "\n")
-           (file-hexdump (cdr files))))))
+
+		   (define xdump (lambda (fileReader)
+						   (define ixd (lambda (_address)
+										 (set! address _address)
+										 (when (fileReader)
+										   (ixd (+ _address 16)))))
+						   (ixd 0)))
+
+		   (with-exception (try
+							 (let ((fileReader (binFileReader current-file bufferLen ixdump)))
+							   (when fileReader
+								 (xdump fileReader))))
+						   (catch
+							 (slprintf "[ERROR] Cannot process file %s\n" current-file)))
+
+		   (slprintf "\n")
+		   (file-hexdump (cdr files))))))
 
    ))
 
