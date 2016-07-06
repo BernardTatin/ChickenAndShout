@@ -37,41 +37,42 @@
  (import
   (scheme base) (scheme write) (scheme process-context)
   (slprintf slprintf) (tools exception)
-  (bbmatch bbmatch) (helpers) (fileOperations binFileReader))
+  (bbmatch bbmatch) (helpers) (fileOperations fileReader))
 
  (begin
 
    (define bufferLen	16)
 
-   (define ixdump
-	 (lambda (rs)
-	   (match rs
-			  ((0 _) #f)
-			  ((rcount buffer)
-			   ;; (slprintf "%08x " address)
-			   (let ((real-buffer (if (< rcount bufferLen)
-									(vector-copy buffer 0 rcount)
-									buffer)))
-				 (vector-for-each (lambda(x) (slprintf "%02x " x))
-								  real-buffer)
-				 (display " '")
-				 (vector-for-each (lambda(x)
-									(display
-									  (cond
-										((< x 42) #\.)
-										((> x 126) #\.)
-										(else (integer->char x))
-										)))
-								  real-buffer)
-				 (display "'\n"))
-			   #t))))
 
-	
-   (define xdump (lambda (fileReader)
-				   (define ixd (lambda (address)
-								 (when (fileReader)
-								   (ixd (+ address 16)))))
-				   (ixd 0)))
+   (define xdump
+     (lambda (fileReader)
+       (define ixd
+         (lambda (address)
+           (let ((rs (fileReader)))
+             (match rs
+              ((0 _) #f)
+              ((rcount buffer)
+               (slprintf "%08x " address)
+               (let ((real-buffer (if (< rcount bufferLen)
+                                      (vector-copy buffer 0 rcount)
+                                      buffer)))
+                 (vector-for-each (lambda(x) (slprintf "%02x " x))
+                  real-buffer)
+                 (display " '")
+                 (vector-for-each (lambda(x)
+                                    (display
+                                     (cond
+                                      ((< x 42) #\.)
+                                      ((> x 126) #\.)
+                                      (else (integer->char x))
+                                      )))
+                  real-buffer)
+                 (display "'\n")
+                 )
+               (ixd (+ rcount address)))
+			  )
+			 )))
+       (ixd 0)))
 
 
    (define file-hexdump
@@ -80,7 +81,7 @@
          (let ((current-file (car files))
                (address 0))
            (with-exception (try
-                            (let ((fileReader (binFileReader current-file bufferLen ixdump)))
+                            (let ((fileReader (fileReader current-file bufferLen)))
                               (when fileReader
                                 (xdump fileReader))))
                            (catch
