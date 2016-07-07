@@ -32,7 +32,7 @@
 (define-library 
   (helpers)
   (export dohelp doversion)
-  (import (scheme base) (scheme write) (scheme process-context) (slprintf))
+  (import (scheme base) (scheme write) (scheme process-context) (slprintf slprintf))
 
   (begin
 	(define *app-name* (car (command-line)))

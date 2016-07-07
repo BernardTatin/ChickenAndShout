@@ -1,5 +1,5 @@
 ;; ======================================================================
-;; simpleFileReader.scm
+;; fileReader.scm
 ;; date		: 2016-03-16 22:20
 ;; author	: bernard
 ;;
@@ -28,50 +28,57 @@
 ;; ======================================================================
 
 (define-library
-  (fileOperations simpleFileReader)
-  (export simpleFileReader fill-buffer)
+  (fileOperations fileReader)
+  (export fileReader)
   (import (scheme base) (scheme read) (scheme file)
+		  (bbmatch bbmatch)
 		  (fileOperations safe-open-file) (tools exception))
 
 
   (begin
 	(cond-expand
-	  (chicken
-		(begin
-		  (require-extension matchable)	;; for match
-		  (declare (uses extras))))
 	  ((or gauche foment sagittarius) (define read-byte read-u8))
 	  (else #t))
 
-
-	(define fill-buffer
-	  (lambda (fHandle buffer buffer-len)
-
-		(define ifill
-		  (lambda (position count)
-			(let ((c (read-byte fHandle)))
-			  (cond
-				((eof-object? c)
-				 (list count buffer))
-				((= count (- buffer-len 1))
-				 (vector-set! buffer position c)
-				 (list (+ count 1) buffer))
-				(else
-				  (vector-set! buffer position c)
-				  (ifill (+ 1 position) (+ 1 count)))))))
-
-		(ifill 0 0)))
-
-
-	(define simpleFileReader
+	(define fileReader
 	  (lambda (file-name buffer-size)
-		(let ((buffer (make-vector buffer-size))
-			  (fHandle (safe-open-file file-name)))
-		  (if (not fHandle)
-			#f
-			(lambda ()
-			  (let ((r (fill-buffer fHandle buffer buffer-size)))
-				(when (= 0 (car r))
-				  (close-input-port fHandle))
-				r))))))
+
+		(define control-state
+		  (lambda (return)
+			(let ((buffer (make-vector buffer-size))
+				  (fHandle (safe-open-file file-name)))
+
+			  (define ifill
+				(lambda (position count)
+				  (let ((c (read-byte fHandle)))
+					(cond
+					  ((eof-object? c)
+					   (list count buffer))
+					  ((= count (- buffer-size 1))
+					   (vector-set! buffer position c)
+					   (list (+ count 1) buffer))
+					  (else
+						(vector-set! buffer position c)
+						(ifill (+ 1 position) (+ 1 count)))))))
+
+			  (letrec ((loop 
+						 (lambda(position count)
+						   (let ((rs (ifill position count)))
+							 (match rs
+									((0 _) (return (list 0 #f)))
+									((count buf)
+									 (set! return (call-with-current-continuation
+													(lambda(resume-here)
+													  (set! control-state resume-here)
+													  (return rs))))
+									 (loop 0 0))
+									)))))
+				(loop 0 0)))))
+
+		(define (generator)
+		  (call-with-current-continuation control-state))
+
+		;; Return the generator 
+		generator))
+
 	))

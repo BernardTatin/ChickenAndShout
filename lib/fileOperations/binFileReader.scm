@@ -1,6 +1,6 @@
 ;; ======================================================================
-;; simpleFileReader.scm
-;; date		: 2016-03-16 22:20
+;; binFileReader.scm
+;; date		: 2016-06-06 22:54
 ;; author	: bernard
 ;;
 ;; The MIT License (MIT)
@@ -28,50 +28,57 @@
 ;; ======================================================================
 
 (define-library
-  (fileOperations simpleFileReader)
-  (export simpleFileReader fill-buffer)
+  (fileOperations binFileReader)
+  (export binFileReader)
   (import (scheme base) (scheme read) (scheme file)
+		  (bbmatch bbmatch)
 		  (fileOperations safe-open-file) (tools exception))
 
 
   (begin
 	(cond-expand
-	  (chicken
-		(begin
-		  (require-extension matchable)	;; for match
-		  (declare (uses extras))))
 	  ((or gauche foment sagittarius) (define read-byte read-u8))
 	  (else #t))
 
+	(define binFileReader
+	  (lambda (file-name buffer-size k)
 
-	(define fill-buffer
-	  (lambda (fHandle buffer buffer-len)
+		(define control-state
+		  (lambda (return)
+			(let ((buffer (make-vector buffer-size))
+				  (fHandle (safe-open-file file-name)))
 
-		(define ifill
-		  (lambda (position count)
-			(let ((c (read-byte fHandle)))
-			  (cond
-				((eof-object? c)
-				 (list count buffer))
-				((= count (- buffer-len 1))
-				 (vector-set! buffer position c)
-				 (list (+ count 1) buffer))
-				(else
-				  (vector-set! buffer position c)
-				  (ifill (+ 1 position) (+ 1 count)))))))
+			  (define ifill
+				(lambda (position count address)
+				  (let ((c (read-byte fHandle)))
+					(cond
+					  ((eof-object? c)
+					   (list count buffer address))
+					  ((= count (- buffer-size 1))
+					   (vector-set! buffer position c)
+					   (list (+ count 1) buffer address))
+					  (else
+						(vector-set! buffer position c)
+						(ifill (+ 1 position) (+ 1 count) address))))))
 
-		(ifill 0 0)))
+			  (letrec ((loop 
+						 (lambda(position count address)
+						   (let ((rs (ifill position count address)))
+							 (match rs
+									((0 _ _) (return #f))
+									((count _ _)
+									 (set! return (call-with-current-continuation
+													(lambda(resume-here)
+													  (set! control-state resume-here)
+													  (return (k rs)))))
+									 (loop 0 0 (+ address count)))
+									)))))
+				(loop 0 0 0)))))
 
+		(define (generator)
+		  (call-with-current-continuation control-state))
 
-	(define simpleFileReader
-	  (lambda (file-name buffer-size)
-		(let ((buffer (make-vector buffer-size))
-			  (fHandle (safe-open-file file-name)))
-		  (if (not fHandle)
-			#f
-			(lambda ()
-			  (let ((r (fill-buffer fHandle buffer buffer-size)))
-				(when (= 0 (car r))
-				  (close-input-port fHandle))
-				r))))))
+		;; Return the generator 
+		generator))
+
 	))

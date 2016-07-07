@@ -32,7 +32,7 @@
 (define-library
  (hextools)
  (export hexgenerator)
- (import (scheme base) (scheme write) (format format-int))
+ (import (scheme base) (scheme write) (slprintf format format-int))
  (begin
    ;; we use a closure to have only one zeroes creation
    ;; (bad english, bad comment or both?)

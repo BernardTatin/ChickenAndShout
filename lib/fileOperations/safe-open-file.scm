@@ -1,6 +1,6 @@
 ;; ======================================================================
-;; with-exception.inc.scm
-;; date		: 2016-03-21 23:04
+;; safe-open-file.scm
+;; date		: 2016-07-04 22:55
 ;; author	: bernard
 ;;
 ;; The MIT License (MIT)
@@ -27,22 +27,19 @@
 ;;
 ;; ======================================================================
 
-;; r7rs ready -
+(define-library
+  (fileOperations safe-open-file)
+  (export safe-open-file)
+  (import (scheme base) (scheme read) (scheme file)
+		  (tools exception))
 
-(define-syntax with-exception
-  (syntax-rules (try catch)
-    ((with-exception (try <dotry>) (catch <docatch>))
-     (guard
-      (exc
-       (else
-        (begin
-          (display "[ERROR] --> ")
-          (display exc)
-          (newline)
-          <docatch>
-          )
-        ))
-      (begin
-        <dotry>)))))
-
-
+  (begin
+	(define safe-open-file
+	  (lambda (file-name)
+		(with-exception (try
+						  (cond-expand
+							(foment (open-binary-input-file file-name))
+							(gauche (open-input-file file-name))
+							(else (open-input-file file-name :transcoder #f))))
+						(catch #f))))
+))

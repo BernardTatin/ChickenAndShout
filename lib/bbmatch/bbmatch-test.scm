@@ -36,9 +36,9 @@
 ;; ======================================================================
 
 (define-library 
- (test-bbmatch)
+ (bbmatch test-bbmatch)
  (import (scheme base) (scheme write) (scheme time)
-         (bbmatch) (println) (tester))
+         (bbmatch bbmatch) (slprintf println) (slprintf tester))
  (begin
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
    ;; run tests
