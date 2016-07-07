@@ -65,8 +65,8 @@
 						 (lambda(position count address)
 						   (let ((rs (ifill position count address)))
 							 (match rs
-									((0 _ address) (return #f))
-									((count buffer address)
+									((0 _ _) (return #f))
+									((count _ _)
 									 (set! return (call-with-current-continuation
 													(lambda(resume-here)
 													  (set! control-state resume-here)
