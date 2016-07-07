@@ -47,13 +47,12 @@
    (define file-hexdump
 	 (lambda (files)
 	   (when (not (null? files))
-		 (let ((current-file (car files))
-			   (address 0))
+		 (let ((current-file (car files)))
 		   (define ixdump
 			 (lambda (rs)
 			   (match rs
-					  ((0 _) #f)
-					  ((rcount buffer)
+					  ((0 _ _) #f)
+					  ((rcount buffer address)
 					   (slprintf "%08x " address)
 					   (let ((real-buffer (if (< rcount bufferLen)
 											(vector-copy buffer 0 rcount)
@@ -74,11 +73,10 @@
 
 
 		   (define xdump (lambda (fileReader)
-						   (define ixd (lambda (_address)
-										 (set! address _address)
+						   (define ixd (lambda ()
 										 (when (fileReader)
-										   (ixd (+ _address 16)))))
-						   (ixd 0)))
+										   (ixd))))
+						   (ixd)))
 
 		   (with-exception (try
 							 (let ((fileReader (binFileReader current-file bufferLen ixdump)))

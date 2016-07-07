@@ -49,31 +49,31 @@
 				  (fHandle (safe-open-file file-name)))
 
 			  (define ifill
-				(lambda (position count)
+				(lambda (position count address)
 				  (let ((c (read-byte fHandle)))
 					(cond
 					  ((eof-object? c)
-					   (list count buffer))
+					   (list count buffer address))
 					  ((= count (- buffer-size 1))
 					   (vector-set! buffer position c)
-					   (list (+ count 1) buffer))
+					   (list (+ count 1) buffer address))
 					  (else
 						(vector-set! buffer position c)
-						(ifill (+ 1 position) (+ 1 count)))))))
+						(ifill (+ 1 position) (+ 1 count) address))))))
 
 			  (letrec ((loop 
-						 (lambda(position count)
-						   (let ((rs (ifill position count)))
+						 (lambda(position count address)
+						   (let ((rs (ifill position count address)))
 							 (match rs
-									((0 _) (return #f))
-									((count buf)
+									((0 _ address) (return #f))
+									((count buffer address)
 									 (set! return (call-with-current-continuation
 													(lambda(resume-here)
 													  (set! control-state resume-here)
 													  (return (k rs)))))
-									 (loop 0 0))
+									 (loop 0 0 (+ address count)))
 									)))))
-				(loop 0 0)))))
+				(loop 0 0 0)))))
 
 		(define (generator)
 		  (call-with-current-continuation control-state))
