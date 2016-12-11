@@ -5,7 +5,7 @@ allscheme="gosh foment sagittarius"
 libs="lib/tools lib/fileOperations lib/sl-printf lib/tester lib/bbmatch ."
 ici=$(dirname $0)
 
-base=$(ici)/lib
+base=${ici}/lib
 
 doIncOptions() {
 	flag=''
