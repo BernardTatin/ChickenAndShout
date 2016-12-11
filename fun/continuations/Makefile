@@ -10,10 +10,11 @@ RM = rm -f
 SRCS = owl-fact.scm
 CSRCS = $(SRCS:%.scm=%.c)
 OBJS = $(CSRCS:%.c=%.o)
+EXE = fact.exe
 
-all: fact
+all: $(EXE)
 
-fact: $(OBJS)
+$(EXE): $(OBJS)
 	$(CC) $(OBJS) -o $@
 
 %.c:%.scm
