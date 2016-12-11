@@ -30,7 +30,8 @@
 
 (define-library
  (tools exception)
- (import (scheme base) (scheme write) (slprintf println))
+ (import (owl defmac) (owl io) (scheme base) 
+		 (scheme write) (slprintf println))
  (export with-exception raise-exception print-exception)
  (begin
 

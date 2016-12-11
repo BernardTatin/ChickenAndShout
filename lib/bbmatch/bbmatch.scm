@@ -1,3 +1,4 @@
+;; ======================================================================
 ;;;; match-cond-expand.scm -- portable hygienic pattern matcher
 ;;
 ;; This code is written by Alex Shinn and placed in the
@@ -45,8 +46,8 @@
 
 (define-library 
   (bbmatch bbmatch)
+  (import (owl defmac) (owl macro) (owl io) (scheme base) (scheme time))
   (export match match-lambda match-let match-let*)
-  (import (scheme base) (scheme time))
   (begin
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

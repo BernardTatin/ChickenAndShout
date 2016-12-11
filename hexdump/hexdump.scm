@@ -34,8 +34,8 @@
 (define-library
   (hexdump)
   (export file-hexdump)
-  (import
-	(scheme base) (scheme write) (scheme process-context)
+  (import (owl defmac) (owl io) 
+	(scheme base) (scheme write) ;; (scheme process-context)
 	(slprintf slprintf) (slprintf format format-int) 
 	(tools exception)
 	(bbmatch bbmatch) (helpers) (fileOperations binFileReader))
@@ -118,8 +118,8 @@
 
 	))
 
-(import
-  (scheme base) (scheme write) (scheme process-context)
+(import (owl defmac) (owl io) 
+  (scheme base) (scheme write) ;;  -lscheme process-context)
   (slprintf println) (slprintf slprintf)
   (hexdump)
   (bbmatch bbmatch) (helpers) (fileOperations fileReader))
@@ -138,4 +138,6 @@
 (cond-expand
   (foment (main (command-line)))
   (gauche (main (command-line)))
+  (owl (lambda(args)
+		 (main args)))
   (else #t))

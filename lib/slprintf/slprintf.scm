@@ -31,7 +31,9 @@
 (define-library
   (slprintf slprintf)
   (export slprintf)
-  (import (scheme base) (scheme write) (scheme char) 
+  (import (owl defmac) (owl io) 
+		  (scheme base) (scheme write) ;; (scheme char) 
+		  (bbmatch bbmatch)
           (tools exception)
           (slprintf format format-string) (slprintf format format-int) (slprintf format format-char))
   (begin
