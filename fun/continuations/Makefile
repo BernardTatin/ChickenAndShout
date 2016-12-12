@@ -17,13 +17,13 @@ all: $(EXE)
 $(EXE): $(OBJS)
 	$(CC) $(OBJS) -o $@
 
-%.c:%.scm
-	$(OL) $(OPTIM) -o $@ $<
-
 %.o:%.c
 	$(CC) $(OPTIM) -c -o $@ $<
 
+%.c:%.scm
+	$(OL) $(OPTIM) -o $@ $<
+
 clean:
-	$(RM) fact $(OBJS) $(CSRCS)
+	$(RM) $(EXE) $(OBJS) $(CSRCS)
 
 .PHONY: all clean

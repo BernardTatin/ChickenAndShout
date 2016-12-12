@@ -10,25 +10,28 @@
   (fact)
   (export k-fact show-facts)
   ;; follow this import order !!!
-  (import (owl defmac) (owl io) (scheme base) (owl-tools))
+  (import (owl defmac) (owl io) (owl macro) (scheme base)
+		  (owl-tools))
   (begin
 	(define k-fact 
 	  (lambda(value0 N k op)
-		(define ik-fact (lambda(i acc)
-						  (if (< i 1)
-							(k acc)
-							(ik-fact (- i 1) (op acc i)))))
+		(define ik-fact 
+		  (lambda(i acc)
+			(case i
+				((0 1) (k acc))
+				(else (ik-fact (- i 1) (op acc i))))))
 		(ik-fact N value0)))
 
 	(define show-facts 
 	  (lambda(value0 N op)
-		(define iloop (lambda(i)
-						(when (<= i N)
-						  (k-fact value0 i (lambda(e) (display i) 
-													  (display " -> ") 
-													  (display e) 
-													  (newline)) 
-								  op)
-						  (iloop (+ i 1)))))
-		(iloop 1)))
+		(define iloop 
+		  (lambda(i)
+			(k-fact value0 i (lambda(e) (display i) 
+										(display " -> ") 
+										(display e) 
+										(newline)) 
+					op)
+			(when (< i N)
+			  (iloop (+ i 1)))))
+		(iloop 0)))
 	))
