@@ -6,13 +6,20 @@
 ;; monad maybe
 ;; from 'Monads for Schemers/Lispers'
 ;;		(https://metalinguist.wordpress.com/2007/07/21/monads-for-schemerslispers/)
+;; ----------------------------------------------------------------------
+
 (define-library 
   (maybe)
   (export make-maybe
 		  map-function-to-maybe
 		  join-maybe)
-  (import (owl defmac)
-		  (scheme base))
+  (cond-expand
+	(owl-lisp
+	  (import (owl defmac)
+			  (scheme base)))
+	(else
+	  (import (scheme base))))
+
   (begin
 	(define make-maybe 
 	  (lambda(value)
