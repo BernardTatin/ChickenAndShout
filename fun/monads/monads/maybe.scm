@@ -9,7 +9,7 @@
 ;; ----------------------------------------------------------------------
 
 (define-library 
-  (maybe)
+  (monads maybe)
   (export make-maybe
 		  map-function-to-maybe
 		  join-maybe)

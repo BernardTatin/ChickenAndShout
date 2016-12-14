@@ -14,11 +14,11 @@
 	  (import (owl defmac)
 			  (owl io)
 			  (scheme base)
-			  (maybe)))
+			  (monads maybe)))
 	(else
 	  (import (scheme base)
 			  (scheme write)
-			  (maybe))))
+			  (monads maybe))))
   (begin
 	;; ----------------------------------------------------------------------
 	;; test
