@@ -12,9 +12,9 @@
           (exc
            (else
             (begin
-              (display "[SYS ERROR] --> ")
-              (display exc)
-              (display "\n")
+              ;; (display "[SYS ERROR] --> ")
+              ;; (display exc)
+              ;; (display "\n")
               <docatch>
               )
             ))

@@ -12,9 +12,9 @@
          (with-handlers
           ((exn:fail?
 			(lambda(exc)
-            (display "[SYS ERROR] --> ")
-            (display exc)
-            (display "\n")
+            ;; (display "[SYS ERROR] --> ")
+            ;; (display exc)
+            ;; (display "\n")
             <docatch>)))
           (begin
             <dotry>)))))
