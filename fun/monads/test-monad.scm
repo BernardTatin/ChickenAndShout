@@ -6,48 +6,82 @@
 ;;		sagittarius -r 7 -L . ./test-monad.scm
 ;; NB : for sagittarius :
 ;;		sudo ldconfig -m /usr/perso/lib/sagittarius /usr/perso/lib
+;; NB : for racket :
+;;          mkdir -p /home/bernard/.racket/6.6/collects
+;;          ln -s monads /home/bernard/.racket/6.6/collects/monads
+;;          cd /home/bernard/.racket/6.6/collects/monads
+;;          ln -s maybe.scm maybe.rkt
 ;; ======================================================================
+;; #!r7rs
+
 (define-library
   (test-monad)
   (cond-expand
-	(owl-lisp
-	  (import (owl defmac)
-			  (owl io)
-			  (scheme base)
-			  (monads maybe)))
-	(else
-	  (import (scheme base)
-			  (scheme write)
-			  (monads maybe))))
+   (owl-lisp
+    (import (owl defmac)
+            (owl io)
+            (scheme base)
+            (mytools r7rs-with-execption)
+            (monads maybe)
+            ))
+   (racket
+    (import (except (racket base) exit)
+            (racket control)
+            (scheme process-context)
+            (mytools racketwithexception)
+            (monads maybe)))
+   (else
+    (import (scheme base)
+            (scheme write)
+            (mytools r7rs-with-execption)
+            (monads maybe)
+            )))
+  
   (begin
-	;; ----------------------------------------------------------------------
-	;; test
-
-	(display ";; ----------------------------------------------------------------------\n")
-	(display "(define maybe-cdr (map-function-to-maybe cdr))\n")
-	(let ((maybe-cdr (map-function-to-maybe cdr))
-		  (object (make-maybe '(1 2))))
-
-	  (display "(maybe-cdr (make-maybe '(1 2))) \n\texpect -> (2) \n\tget -> ")
-	  (display (maybe-cdr object))
-	  (display "\n")
-
-	  (display "(maybe-cdr (maybe-cdr (make-maybe '(1 2)))) \n\texpect -> () \n\tget -> ")
-	  (display (maybe-cdr (maybe-cdr object)))
-	  (display "\n")
-
-	  (display "(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (make-maybe '(1 2)))))) \n\texpect -> Error \n\tget -> ")
-	  (display (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object)))))
-	  (display "\n")
-
-	  (display "(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (make-maybe '(1 2))))))) \n\texpect -> Error \n\tget -> ")
-	  (display (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object))))))
-	  (display "\n")
-	  (display "\n")
-	  (display "\n")
-
-	  (display "last compute is same as :\n")
-	  (display "(cdr (cdr (cdr (cdr '(1 2))))) \n\tget -> ")
-	  (display (cdr (cdr (cdr (cdr '(1 2))))))
-	  (display "\n"))
-	))
+    ;; ----------------------------------------------------------------------
+    ;; test
+    
+    
+    (define-syntax test
+      (syntax-rules ()
+        ((test message expression expected)
+         (begin
+           (display message)
+           (display "\n\texpected -> ") (display expected)
+           (display "\n\tget      -> ") 
+           (with-exception
+               (try
+                (display expression))
+             (lecatch
+              (begin
+                (display "Error")
+                '("Error"))))
+           (display "\n")))))
+    
+    (display ";; ----------------------------------------------------------------------\n")
+    (display "(define maybe-cdr (map-function-to-maybe cdr))\n")
+    (let ((maybe-cdr (map-function-to-maybe cdr))
+          (object (make-maybe '(1 2))))
+      
+      (test "(maybe-cdr (make-maybe '(1 2)))"
+            (maybe-cdr object)
+            '(2))
+      
+      (test "(maybe-cdr (maybe-cdr (make-maybe '(1 2))))"
+            (maybe-cdr (maybe-cdr object))
+            '())
+      
+      (test "(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (make-maybe '(1 2))))))"
+            (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object))))
+            "Error")
+      
+      (test "(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (make-maybe '(1 2)))))))"
+            (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object)))))
+            "Error")
+      
+      (test "(cdr (cdr (cdr (cdr '(1 2)))))"
+            (cdr (cdr (cdr (cdr '(1 2)))))
+            "Error")
+      (display "\nEnd of tests\n")
+      )
+    ))

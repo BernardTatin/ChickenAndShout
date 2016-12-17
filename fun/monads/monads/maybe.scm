@@ -1,3 +1,4 @@
+;; #!r7rs
 ;; ======================================================================
 ;; maybe.scm
 ;; ======================================================================
@@ -8,6 +9,7 @@
 ;;		(https://metalinguist.wordpress.com/2007/07/21/monads-for-schemerslispers/)
 ;; ----------------------------------------------------------------------
 
+
 (define-library 
   (monads maybe)
   (export make-maybe
@@ -17,6 +19,8 @@
 	(owl-lisp
 	  (import (owl defmac)
 			  (scheme base)))
+        (racket
+         (import (racket base)))
 	(else
 	  (import (scheme base))))
 

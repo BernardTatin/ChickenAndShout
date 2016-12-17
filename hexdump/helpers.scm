@@ -27,12 +27,15 @@
 ;;
 ;; ======================================================================
 
-;; (declare (unit helpers))
-
 (define-library 
   (helpers)
   (export dohelp doversion)
-  (import (scheme base) (scheme write) (scheme process-context) (slprintf slprintf))
+  (cond-expand
+	(owl-lisp
+	  (owl defmac)
+	  (owl io)))
+  (import (scheme base) (scheme write) (scheme process-context) 
+		  (slprintf slprintf))
 
   (begin
 	(define *app-name* (car (command-line)))

@@ -31,11 +31,18 @@
 (define-library
   (slprintf slprintf)
   (export slprintf)
-  (import (owl defmac) (owl io) 
-		  (scheme base) (scheme write) ;; (scheme char) 
-		  (bbmatch bbmatch)
-          (tools exception)
-          (slprintf format format-string) (slprintf format format-int) (slprintf format format-char))
+  (cond-expand
+	(owl-lisp
+	  (import (owl defmac) (owl io) 
+			  (scheme base) (scheme write) (scheme char) 
+			  (tools exception)
+			  (slprintf format format-string) (slprintf format format-int) (slprintf format format-char)))
+	(else
+	  (import (scheme base) (scheme write) (scheme char) 
+			  (bbmatch bbmatch)
+			  (tools exception)
+			  (slprintf format format-string) (slprintf format format-int) (slprintf format format-char))))
+
   (begin
 
 	
