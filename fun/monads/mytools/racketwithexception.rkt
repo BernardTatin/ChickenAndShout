@@ -7,15 +7,12 @@
   (begin
     
     (define-syntax with-exception
-      (syntax-rules (try lecatch)
-        ((with-exception (try <dotry>) (lecatch <docatch>))
-         (with-handlers
-          ((exn:fail?
-			(lambda(exc)
-            ;; (display "[SYS ERROR] --> ")
-            ;; (display exc)
-            ;; (display "\n")
-            <docatch>)))
-          (begin
-            <dotry>)))))
+	  (syntax-rules (try lecatch)
+					((with-exception <return> (try <dotry>) (lecatch <docatch>))
+					 (let ((<return> (lambda(a) a)))
+					   (with-handlers
+						 ((exn:fail?
+							<docatch>))
+						 (let ((f <dotry>))
+						   (f)))))))
     ))

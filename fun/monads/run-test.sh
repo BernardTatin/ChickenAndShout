@@ -3,7 +3,7 @@
 scriptname=$(basename $0)
 
 mainscm=test-monad.scm
-libs="monads/maybe.scm"
+libs="monads/maybe.scm mytools/test.scm"
 
 dohelp () {
 	cat << DOHELP
@@ -18,6 +18,7 @@ DOHELP
 files_to_racket () {
 	while [ $# -ne 0 ]
 	do
+		echo "files_to_racket $1"
 		sed -I .bak 's/^[ \t]*;*[ \t]*#!r7rs/#!r7rs/' $1
 		shift
 	done

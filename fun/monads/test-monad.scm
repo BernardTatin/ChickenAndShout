@@ -20,8 +20,10 @@
 	(owl-lisp
 	  (import (owl defmac)
 			  (owl io)
+			  (owl base)
 			  (scheme base)
 			  (mytools r7rs-with-execption)
+			  (mytools test)
 			  (monads maybe)
 			  ))
 	(racket
@@ -29,11 +31,13 @@
 			  (racket control)
 			  (scheme process-context)
 			  (mytools racketwithexception)
+			  (mytools test)
 			  (monads maybe)))
 	(else
 	  (import (scheme base)
 			  (scheme write)
 			  (mytools r7rs-with-execption)
+			  (mytools test)
 			  (monads maybe)
 			  )))
 
@@ -41,26 +45,6 @@
 	;; ----------------------------------------------------------------------
 	;; test
 
-	(define test-error '("Error"))
-	(define test-OK "---- >>> OK\n")
-	(define test-FAIL "---- >>> FAILURE\n")
-	(define-syntax test
-	  (syntax-rules ()
-					((test message expression expected)
-					 (begin
-					   (display message)
-					   (display "\n\texpected -> ") (display expected)
-					   (display "\n\tget      -> ") 
-					   (let ((e (with-exception
-								  (try
-									expression)
-								  (lecatch
-									(begin
-									  test-error)))))
-						 (display e) (display "\n")
-						 (if (equal? e expected)
-						   (display test-OK)
-						   (display test-FAIL)))))))
 
 	(display ";; ----------------------------------------------------------------------\n")
 	(display "(define maybe-cdr (map-function-to-maybe cdr))\n")
