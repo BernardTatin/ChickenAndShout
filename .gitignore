@@ -8,6 +8,7 @@
 # scheme
 *.sld
 compiled/
+*.import.scm
 
 # Precompiled Headers
 *.gch

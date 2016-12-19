@@ -12,7 +12,7 @@
 ;;          cd /home/bernard/.racket/6.6/collects/monads
 ;;          ln -s maybe.scm maybe.rkt
 ;; ======================================================================
-#!r7rs
+;; #!r7rs
 
 (define-library
   (test-monad)

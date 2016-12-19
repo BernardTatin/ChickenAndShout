@@ -8,7 +8,7 @@ libs="monads/maybe.scm mytools/test.scm"
 dohelp () {
 	cat << DOHELP
 ${scriptname} [-h|--help] : this text
-${scriptname} --foment|--ol|--gosh|--sagittarius|--racket :
+${scriptname} --foment|--ol|--gosh|--sagittarius|--racket|--chicken :
 		run tests with the named system
 ${scriptname} -a|--all : run tests for all systems		
 DOHELP
@@ -49,6 +49,15 @@ execute () {
 		--sagittarius)
 			sagittarius -r 7 -L . ${mainscm}
 			;;
+		--chicken)
+			for f in mytools/r7rs-with-execption.scm mytools/test.scm monads/maybe.scm
+			do
+				local so=$(dirname $f).$(basename $f)
+				csc -X r7rs -R r7rs -sJ -o ${so%.scm}.o $f
+			done
+			csc -X r7rs -R r7rs test-monad.scm -o test-monad.exe
+			./test-monad.exe
+			;;
 	esac
 }
 
@@ -61,7 +70,7 @@ dotest () {
 			files_to_racket ${mainscm} ${libs}
 			racket ${mainscm}
 			;;
-		--foment|--ol|--gosh|--sagittarius)
+		--foment|--ol|--gosh|--sagittarius|--chicken)
 			files_to_r7rs ${mainscm} ${libs}
 			execute ${scheme} ${mainscm}
 			;;
@@ -73,7 +82,7 @@ dotest () {
 }
 
 doall () {
-	for scheme in --foment --ol --gosh --sagittarius --racket
+	for scheme in --foment --ol --gosh --sagittarius --racket --chicken
 	do
 		dotest ${scheme}
 	done
@@ -86,7 +95,7 @@ case $1 in
 	-a|--all)
 		doall
 		;;
-	--foment|--ol|--gosh|--sagittarius|--racket)
+	--foment|--ol|--gosh|--sagittarius|--racket|--chicken)
 		dotest $1
 		;;
 	*)

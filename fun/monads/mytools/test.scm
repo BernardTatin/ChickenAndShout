@@ -1,4 +1,4 @@
-#!r7rs
+;; #!r7rs
 
 (define-library
   (mytools test)
