@@ -2,7 +2,7 @@
 
 (define-library
   (mytools test)
-  (export test test-OK test-FAIL test-error)
+  (export test test-OK test-FAIL test-error ldisplay)
   (cond-expand
 	(owl-lisp
 	  (import (owl core)
@@ -21,24 +21,28 @@
   (begin
 	(define test-OK "---- >>> OK\n")
 	(define test-FAIL "---- >>> FAILURE\n")
+
 	(define test-error '("Error"))
+
+	(define (ldisplay . l)
+	  (for-each display l))
+
 	(define-syntax test
 	  (syntax-rules ()
-					((test message expression expected)
-					 (begin
-					   (let ((e (with-exception return
-												(try
-												  (lambda()
-													expression))
-												(lecatch
-												  (lambda(e)
-													(return test-error))))))
-						 (begin
-						   (display message)
-						   (display "\n\texpected -> ") (display expected)
-						   (display "\n\tget      -> ") 
-						   (display e) (display "\n")
-						   (if (equal? e expected)
-							 (display test-OK)
-							 (display test-FAIL))))))))
+					((test expression expected)
+					 (let ((e (with-exception return
+											  (try
+												(lambda()
+												  expression))
+											  (lecatch
+												(lambda(e)
+												  (return test-error))))))
+						 (ldisplay 'expression
+								   "\n\texpected -> " 
+								   expected
+								   "\n\tget      -> "
+								   e "\n"
+								   (if (equal? e expected)
+									 test-OK
+									 test-FAIL))))))
 	))

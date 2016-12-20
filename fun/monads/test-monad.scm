@@ -51,24 +51,19 @@
 	(let ((maybe-cdr (map-function-to-maybe cdr))
 		  (object (make-maybe '(1 2))))
 
-	  (test "(maybe-cdr (make-maybe '(1 2)))"
-			(maybe-cdr object)
+	  (test (maybe-cdr object)
 			'(2))
 
-	  (test "(maybe-cdr (maybe-cdr (make-maybe '(1 2))))"
-			(maybe-cdr (maybe-cdr object))
+	  (test (maybe-cdr (maybe-cdr object))
 			'())
 
-	  (test "(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (make-maybe '(1 2))))))"
-			(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object))))
+	  (test (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object))))
 			'())
 
-	  (test "(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (make-maybe '(1 2)))))))"
-			(maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object)))))
+	  (test (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr (maybe-cdr object)))))
 			'())
 
-	  (test "(cdr (cdr (cdr (cdr '(1 2)))))"
-			(cdr (cdr (cdr (cdr '(1 2)))))
+	  (test (cdr (cdr (cdr (cdr '(1 2)))))
 			test-error)
 	  (display "\nEnd of tests\n")
 	  )
