@@ -2,7 +2,7 @@
 
 (define-library
   (mytools test)
-  (export test test-OK test-FAIL test-error ldisplay)
+  (export test test-OK test-FAIL test-error)
   (cond-expand
 	(owl-lisp
 	  (import (owl core)

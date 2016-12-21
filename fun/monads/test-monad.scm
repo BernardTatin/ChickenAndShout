@@ -48,7 +48,7 @@
 
 	(display ";; ----------------------------------------------------------------------\n")
 	(display "(define maybe-cdr (map-function-to-maybe cdr))\n")
-	(let ((maybe-cdr (map-function-to-maybe cdr))
+	(let ((maybe-cdr (map-function-to-maybe cdr null? '()))
 		  (object (make-maybe '(1 2))))
 
 	  (test (maybe-cdr object)
@@ -65,6 +65,15 @@
 
 	  (test (cdr (cdr (cdr (cdr '(1 2)))))
 			test-error)
-	  (display "\nEnd of tests\n")
-	  )
+	  (display "\nEnd of tests\n"))
+	(let ((maybe-div (map-function-to-maybe 
+					   (lambda(object)
+						 (/ (car object) (cadr object)))
+					   (lambda(object)
+						 (equal? (cadr object) 0))
+					   #f)))
+	  (test (maybe-div (make-maybe '(10 2))) 5)
+	  (test (maybe-div (make-maybe '(10 0))) #f))
+		
 	))
+

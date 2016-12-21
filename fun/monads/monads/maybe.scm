@@ -30,10 +30,10 @@
 		value))
 
 	(define map-function-to-maybe 
-	  (lambda(fn)
+	  (lambda(fn test? on-test-true)
 		(lambda (maybe-object)
-		  (if (null? maybe-object)
-			'()
+		  (if (test? maybe-object)
+			on-test-true
 			(make-maybe (fn maybe-object))))))
 
 	(define join-maybe 
