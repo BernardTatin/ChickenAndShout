@@ -64,16 +64,26 @@
 			'())
 
 	  (test (cdr (cdr (cdr (cdr '(1 2)))))
-			test-error)
-	  (display "\nEnd of tests\n"))
+			test-error))
 	(let ((maybe-div (map-function-to-maybe 
 					   (lambda(object)
 						 (/ (car object) (cadr object)))
 					   (lambda(object)
-						 (equal? (cadr object) 0))
+						 (cond 
+						   ((not (pair? object)) #t)
+						   ((null? (cdr object)) #t)
+						   ((not (integer? (car object))) #t)
+						   ((not (integer? (cadr object))) #t)
+						   ((equal? (cadr object) 0) #t)
+						   (else #f)))
 					   #f)))
+	  (test (maybe-div (make-maybe '(10 a))) #f)
+	  (test (maybe-div (make-maybe '(10))) #f)
+	  (test (maybe-div (make-maybe 'a0)) #f)
+	  (test (maybe-div (make-maybe '(a0 2))) #f)
 	  (test (maybe-div (make-maybe '(10 2))) 5)
 	  (test (maybe-div (make-maybe '(10 0))) #f))
+	  (display "\nEnd of tests\n")
 		
 	))
 
