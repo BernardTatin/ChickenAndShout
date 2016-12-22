@@ -6,8 +6,8 @@
 CSC = csc -X r7rs -R r7rs
 CSCOPT =
 
-SOURCES = mytools/r7rs-with-execption.scm mytools/test.scm monads/maybe.scm
-LIBS = $(subst /,.,$(SOURCES:%.scm=%.so))
+SRC_LIBS = mytools/r7rs-with-execption.scm mytools/test.scm monads/maybe.scm
+LIBS = $(subst /,.,$(SRC_LIBS:%.scm=%.so))
 IMPORTS = $(LIBS:%.so=%.import.scm)
 
 SRC_APP = test-monad.scm
@@ -16,14 +16,11 @@ APP = $(SRC_APP:%.scm=%.exe)
 
 all: $(APP)
 
-$(APP): $(BDIR) $(SRC_APP) $(LIBS)
+$(APP): $(SRC_APP) $(LIBS)
 	$(CSC) $< -o $@ > /dev/null
 
-$(BDIR):
-	mkdir -p $<
-
-$(LIBS): $(SOURCES)
-	for f in $(SOURCES); do \
+$(LIBS): $(SRC_LIBS)
+	for f in $(SRC_LIBS); do \
 		$(CSC) -sJ -o $$(echo $${f%.scm}.so | tr '/' '.') $$f > /dev/null; \
 	done
 

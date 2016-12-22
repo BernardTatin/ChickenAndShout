@@ -50,13 +50,7 @@ execute () {
 			sagittarius -r 7 -L . ${mainscm}
 			;;
 		--chicken)
-			for f in mytools/r7rs-with-execption.scm mytools/test.scm monads/maybe.scm
-			do
-				local so=$(dirname $f).$(basename $f)
-				csc -X r7rs -R r7rs -sJ -o ${so%.scm}.o $f
-			done
-			csc -X r7rs -R r7rs test-monad.scm -o test-monad.exe
-			./test-monad.exe
+			gmake test
 			;;
 	esac
 }
