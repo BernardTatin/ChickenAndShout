@@ -32,10 +32,17 @@
   (export dohelp doversion)
   (cond-expand
 	(owl-lisp
-	  (owl defmac)
-	  (owl io)))
-  (import (scheme base) (scheme write) (scheme process-context) 
-		  (slprintf slprintf))
+	  (import (owl defmac)
+			  (owl io)
+			  (scheme base) 
+			  (scheme write) 
+			  (scheme process-context) 
+			  (slprintf slprintf)))
+	(else
+	  (import (scheme base)
+			  (scheme write) 
+			  (scheme process-context) 
+			  (slprintf slprintf))))
 
   (begin
 	(define *app-name* (car (command-line)))

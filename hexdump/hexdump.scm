@@ -34,11 +34,18 @@
 (define-library
   (hexdump)
   (export file-hexdump)
-  (import (owl defmac) (owl io) 
-	(scheme base) (scheme write) ;; (scheme process-context)
-	(slprintf slprintf) (slprintf format format-int) 
-	(tools exception)
-	(bbmatch bbmatch) (helpers) (fileOperations binFileReader))
+  (cond-expand
+	(owl-lisp
+	  (import (owl defmac) (owl io) 
+			  (scheme base) (scheme write) ;; (scheme process-context)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
+	(else
+	  (import (scheme base) (scheme write) ;; (scheme process-context)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader))))
 
   (begin
 
@@ -64,8 +71,6 @@
 	  (lambda (files)
 		(when (not (null? files))
 		  (let ((current-file (car files)))
-
-
 			(define ixdump
 			  (lambda (rs)
 				(match rs
@@ -114,30 +119,51 @@
 							  (slprintf "[ERROR] Cannot process file %s\n" current-file)))
 
 			(slprintf "\n")
+			;; (display "Current-file: ") (display current-file) (display "\n")
 			(file-hexdump (cdr files))))))
 
 	))
 
-(import (owl defmac) (owl io) 
-  (scheme base) (scheme write) ;;  -lscheme process-context)
-  (slprintf println) (slprintf slprintf)
-  (hexdump)
-  (bbmatch bbmatch) (helpers) (fileOperations fileReader))
-
+#|
+(cond-expand
+  (owl-lisp
+	(import (owl defmac) (owl io) 
+			(scheme base) (scheme write) ;;  -lscheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(bbmatch bbmatch) (helpers) (fileOperations fileReader)))
+  (else
+	(import (scheme base) (scheme write) ;;  -lscheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(bbmatch bbmatch) (helpers) (fileOperations fileReader))))
+|#
+(import (scheme base) (scheme write) (scheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(bbmatch bbmatch) (helpers) (fileOperations fileReader))
 (define main
   (lambda (args)
-	(let ((_args (cdr (command-line))))
-	  (match (cdr args)
+	;; (display "args: ") (display args) (display "\n")
+	(let ((_args (cdr args)))
+	  ;; (display "_args: ") (display _args) (display "\n")
+	  (file-hexdump _args))))
+#|
+	  (match (_args)
 			 (() (dohelp 0))
 			 (("--help") (dohelp 0))
 			 (("--help" _) (dohelp 0))
 			 (("--version") (doversion 0))
 			 (("--version" _) (doversion 0))
-			 (_ (file-hexdump (cdr args)))))))
+			 (_ (file-hexdump _args))))))
+|#
 
+(main (command-line))
+#|
 (cond-expand
   (foment (main (command-line)))
   (gauche (main (command-line)))
   (owl (lambda(args)
 		 (main args)))
   (else #t))
+|#

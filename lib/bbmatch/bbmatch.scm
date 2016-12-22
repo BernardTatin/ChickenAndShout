@@ -46,8 +46,17 @@
 
 (define-library 
   (bbmatch bbmatch)
-  (import (owl defmac) (owl macro) (owl io) (scheme base) (scheme time))
   (export match match-lambda match-let match-let*)
+  (cond-expand
+	(owl-lisp
+	  (import (owl defmac) 
+			  (owl macro) 
+			  (owl io) 
+			  (scheme base) 
+			  (scheme time)))
+	(else
+	  (import (scheme base) 
+			  (scheme time))))
   (begin
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
