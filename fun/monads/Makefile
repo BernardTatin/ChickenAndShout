@@ -13,14 +13,18 @@ IMPORTS = $(LIBS:%.so=%.import.scm)
 SRC_APP = test-monad.scm
 APP = $(SRC_APP:%.scm=%.exe)
 
+
 all: $(APP)
 
-$(APP): $(SRC_APP) $(LIBS)
-	$(CSC) $< -o $@
+$(APP): $(BDIR) $(SRC_APP) $(LIBS)
+	$(CSC) $< -o $@ > /dev/null
+
+$(BDIR):
+	mkdir -p $<
 
 $(LIBS): $(SOURCES)
 	for f in $(SOURCES); do \
-		$(CSC) -sJ -o $$(echo $${f%.scm}.so | tr '/' '.') $$f; \
+		$(CSC) -sJ -o $$(echo $${f%.scm}.so | tr '/' '.') $$f > /dev/null; \
 	done
 
 clean:
@@ -28,5 +32,8 @@ clean:
 	@echo "IMPORTS: $(IMPORTS)"
 	rm -f $(APP) $(LIBS) $(IMPORTS)
 
-.PHONY: all clean
+test: all
+	./$(APP)
+	 
+.PHONY: all clean test
 
