@@ -67,6 +67,16 @@
 			(string-append (make-string d #\0) s)
 			s))))
 
+	(define fold-left 
+	  (lambda(op initial sequence)
+		(define iter 
+		  (lambda(result rest)
+			(if (null? rest)
+			  result
+			  (iter (op result (car rest))
+					(cdr rest)))))
+		  (iter initial sequence)))
+
 	(define file-hexdump
 	  (lambda (files)
 		(when (not (null? files))
@@ -76,28 +86,31 @@
 				(match rs
 					   ((0 _ address) 
 						(display (format-address address))
-						(display ":\n")
+						(display "\n")
 						#f)
 					   ((rcount buffer address)
-						(display (format-address address))
-						(display "  ")
-						(let ((real-buffer (if (< rcount bufferLen)
-											 (vector-copy buffer 0 rcount)
-											 buffer)))
-						  (vector-for-each (lambda(x) 
-											 (display (format-hex2 x))
-											 (display " "))
-										   real-buffer)
-						  (display " |")
-						  (vector-for-each (lambda(x)
-											 (display
-											   (cond
-												 ((< x 32) #\.)
-												 ((> x 126) #\.)
-												 (else (integer->char x))
-												 )))
-										   real-buffer)
-						  (display "|\n")
+						(let* ((list-buffer (vector->list (if (< rcount bufferLen)
+															(vector-copy buffer 0 rcount)
+															buffer)))
+							   (str-address (format-address address))
+							   (all-hex (map format-hex2 list-buffer))
+							   (all-ascii (map (lambda(x)
+												 (cond
+												   ((< x 32) ".")
+												   ((> x 126) ".")
+												   (else (string (integer->char x)))
+												   ))
+											   list-buffer))
+							   )
+						  (slprintf "%s  %s |%s|\n"
+									str-address
+									(fold-left (lambda(x y)
+												 (string-append x y " "))
+											   ""
+											   all-hex)
+									(fold-left string-append
+											   ""
+											   all-ascii))
 						  (when (< rcount bufferLen)
 							(display (format-address (+ address rcount)))
 							(display "\n")))
@@ -144,9 +157,7 @@
 			(bbmatch bbmatch) (helpers) (fileOperations fileReader))
 (define main
   (lambda (args)
-	;; (display "args: ") (display args) (display "\n")
 	(let ((_args (cdr args)))
-	  ;; (display "_args: ") (display _args) (display "\n")
 	  (file-hexdump _args))))
 #|
 	  (match (_args)
@@ -159,11 +170,3 @@
 |#
 
 (main (command-line))
-#|
-(cond-expand
-  (foment (main (command-line)))
-  (gauche (main (command-line)))
-  (owl (lambda(args)
-		 (main args)))
-  (else #t))
-|#
