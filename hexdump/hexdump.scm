@@ -37,7 +37,7 @@
   (cond-expand
 	(owl-lisp
 	  (import (owl defmac) (owl io) 
-			  (scheme base) (scheme write) ;; (scheme process-context)
+			  (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
@@ -85,8 +85,7 @@
 			  (lambda (rs)
 				(match rs
 					   ((0 _ address) 
-						(display (format-address address))
-						(display "\n")
+						(slprintf "%s\n" (format-address address))
 						#f)
 					   ((rcount buffer address)
 						(let* ((list-buffer (vector->list (if (< rcount bufferLen)
@@ -108,12 +107,10 @@
 												 (string-append x y " "))
 											   ""
 											   all-hex)
-									(fold-left string-append
-											   ""
-											   all-ascii))
+									(apply string-append all-ascii))
 						  (when (< rcount bufferLen)
-							(display (format-address (+ address rcount)))
-							(display "\n")))
+							(slprintf "%s\n" (format-address (+ address rcount)))
+							))
 
 						#t))))
 
@@ -131,8 +128,7 @@
 							(catch
 							  (slprintf "[ERROR] Cannot process file %s\n" current-file)))
 
-			(slprintf "\n")
-			;; (display "Current-file: ") (display current-file) (display "\n")
+			(display "\n")
 			(file-hexdump (cdr files))))))
 
 	))
