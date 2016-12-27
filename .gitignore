@@ -22,6 +22,7 @@ compiled/
 
 # logs
 *.log
+tfile
 
 # Shared objects (inc. Windows DLLs)
 *.dll

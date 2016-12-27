@@ -37,8 +37,7 @@
 
   (begin
 	(cond-expand
-	  ((or gauche foment sagittarius) (define read-byte read-u8))
-	  (else #t))
+	  ((or gauche foment sagittarius) (define read-byte read-u8)))
 
 	(define binFileReader
 	  (lambda (file-name buffer-size k)
@@ -65,7 +64,7 @@
 						 (lambda(position count address)
 						   (let ((rs (ifill position count address)))
 							 (match rs
-									((0 _ _) (return #f))
+									((0 _ _) (return (k rs)))
 									((count _ _)
 									 (set! return (call-with-current-continuation
 													(lambda(resume-here)

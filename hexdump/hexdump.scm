@@ -61,8 +61,7 @@
 	(define format-address
 	  (lambda(address)
 		(let* ((s (number->string address 16))
-			   (l (string-length s))
-			   (d (- 8 l)))
+			   (d (- 8 (string-length s))))
 		  (if (> d 0)
 			(string-append (make-string d #\0) s)
 			s))))
@@ -73,9 +72,8 @@
 		  (lambda(result rest)
 			(if (null? rest)
 			  result
-			  (iter (op result (car rest))
-					(cdr rest)))))
-		  (iter initial sequence)))
+			  (iter (op result (car rest)) (cdr rest)))))
+		(iter initial sequence)))
 
 	(define file-hexdump
 	  (lambda (files)
@@ -99,8 +97,7 @@
 												   ((> x 126) ".")
 												   (else (string (integer->char x)))
 												   ))
-											   list-buffer))
-							   )
+											   list-buffer)))
 						  (slprintf "%s  %s |%s|\n"
 									str-address
 									(fold-left (lambda(x y)
@@ -108,25 +105,23 @@
 											   ""
 											   all-hex)
 									(apply string-append all-ascii))
-						  (when (< rcount bufferLen)
-							(slprintf "%s\n" (format-address (+ address rcount)))
-							))
 
-						#t))))
+						  #t)))))
 
+			(define xdump 
+			  (lambda (fileReader)
+				(define ixd (lambda ()
+							  (when (fileReader)
+								(ixd))))
+				(ixd)))
 
-			(define xdump (lambda (fileReader)
-							(define ixd (lambda ()
-										  (when (fileReader)
-											(ixd))))
-							(ixd)))
-
-			(with-exception (try
-							  (let ((fileReader (binFileReader current-file bufferLen ixdump)))
-								(when fileReader
-								  (xdump fileReader))))
-							(catch
-							  (slprintf "[ERROR] Cannot process file %s\n" current-file)))
+			(with-exception 
+			  (try
+				(let ((fileReader (binFileReader current-file bufferLen ixdump)))
+				  (when fileReader
+					(xdump fileReader))))
+			  (catch
+				(slprintf "[ERROR] Cannot process file %s\n" current-file)))
 
 			(display "\n")
 			(file-hexdump (cdr files))))))
@@ -148,21 +143,21 @@
 			(bbmatch bbmatch) (helpers) (fileOperations fileReader))))
 |#
 (import (scheme base) (scheme write) (scheme process-context)
-			(slprintf println) (slprintf slprintf)
-			(hexdump)
-			(bbmatch bbmatch) (helpers) (fileOperations fileReader))
-(define main
+		(slprintf println) (slprintf slprintf)
+		(hexdump)
+		(bbmatch bbmatch) (helpers) (fileOperations fileReader))
+
+(define themain
   (lambda (args)
 	(let ((_args (cdr args)))
 	  (file-hexdump _args))))
+(themain (command-line))
 #|
-	  (match (_args)
-			 (() (dohelp 0))
-			 (("--help") (dohelp 0))
-			 (("--help" _) (dohelp 0))
-			 (("--version") (doversion 0))
-			 (("--version" _) (doversion 0))
-			 (_ (file-hexdump _args))))))
+(match (_args)
+	   (() (dohelp 0))
+	   (("--help") (dohelp 0))
+	   (("--help" _) (dohelp 0))
+	   (("--version") (doversion 0))
+	   (("--version" _) (doversion 0))
+	   (_ (file-hexdump _args))))))
 |#
-
-(main (command-line))
