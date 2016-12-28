@@ -31,7 +31,7 @@
 	  (syntax-rules ()
 					((test expression expected)
 					 (let ((e (with-exception return
-											  (try
+											  (letry
 												(lambda()
 												  expression))
 											  (lecatch

@@ -16,10 +16,10 @@
   (begin
 
 	(cond-expand
-	  (foment
+	  ((or foment sagittarius chicken)
 		(define-syntax with-exception
-		  (syntax-rules (try lecatch)
-						((with-exception <return> (try <dotry>) (lecatch <docatch>))
+		  (syntax-rules (letry lecatch)
+						((with-exception <return> (letry <dotry>) (lecatch <docatch>))
 						 (call-with-current-continuation
 						   (lambda (<return>)
 							 (with-exception-handler 
@@ -27,8 +27,8 @@
 							   <dotry>)))))))
 	  (else
 		(define-syntax with-exception
-		  (syntax-rules (try lecatch)
-						((with-exception  <return> (try <dotry>) (lecatch <docatch>))
+		  (syntax-rules (letry lecatch)
+						((with-exception  <return> (letry <dotry>) (lecatch <docatch>))
 						 (let ((<return> (lambda(a) a)))
 						   (guard
 							 (exc
