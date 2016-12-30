@@ -29,7 +29,7 @@
 INCS = -I.
 R7RS = -X r7rs -R r7rs 
 OPT =  -debug-level 0 -verbose $(INCS)
-CSC = csc $(R7RS)
+CSC = csc $(R7RS) $(OPT)
 LOG = mk.log
 
 RM = rm -f
