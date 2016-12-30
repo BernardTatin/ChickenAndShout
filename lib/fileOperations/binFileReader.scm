@@ -30,14 +30,21 @@
 (define-library
   (fileOperations binFileReader)
   (export binFileReader)
-  (import (scheme base) (scheme read) (scheme file)
-		  (bbmatch bbmatch)
-		  (fileOperations safe-open-file) (tools exception))
+  (cond-expand
+	(chicken
+	  (import (scheme base) (scheme read) (scheme file)
+			  (matchable) (extras)
+			  (fileOperations safe-open-file) (tools exception)))
+	(else
+	  (import (scheme base) (scheme read) (scheme file)
+			  (bbmatch bbmatch)
+			  (fileOperations safe-open-file) (tools exception))))
 
 
   (begin
 	(cond-expand
-	  ((or gauche foment sagittarius) (define read-byte read-u8)))
+	  ((or gauche foment sagittarius) (define read-byte read-u8))
+	  (else #t))
 
 	(define binFileReader
 	  (lambda (file-name buffer-size k)

@@ -26,40 +26,40 @@
 #
 # ======================================================================
 
-INCS = -I. -I../lib -I../lib/fileOperations 
-
-CSC = csc $(EXTENSIONS) -c -debug-level 0 -verbose $(INCS)
-CSLD = csc
+INCS = -I.
+R7RS = -X r7rs -R r7rs 
+OPT =  -debug-level 0 -verbose $(INCS)
+CSC = csc $(R7RS)
+LOG = mk.log
 
 RM = rm -f
 
-odir = objs
-
-_srcs = $(notdir $(SOURCES))
-_OBJS = $(_srcs:%.scm=%.o)
-OBJS = $(_OBJS:%=$(odir)/%)
+LIBS = $(subst /,.,$(SOURCES:%.scm=%.so))
+IMPORTS = $(LIBS:%.so=%.import.scm)
 
 CSRCS = $(SOURCES:%.scm=%.c)
 
+APP = $(SRC_APP:%.scm=%.exe)
 
 all: $(APP)
 
-$(APP): $(odir) $(OBJS) 
-	$(CSLD) $(OBJS) -o $@
+$(APP): $(SRC_APP) $(LIBS)
+	$(CSC) $< -o $@ 
 
-$(odir):
-	mkdir -p $@
+$(LIBS): $(SOURCES)
+	for f in $(SOURCES); do \
+		echo "Compile $$f"; \
+		$(CSC) -sJ -o $$(echo $${f%.scm}.so | tr '/' '.') $$f || exit 1; \
+	done
 
-clean: 
-	$(RM) $(OBJS) $(APP) $(CSRCS)
+clean:
+	@echo "LIBS: $(LIBS)"
+	@echo "IMPORTS: $(IMPORTS)"
+	rm -f $(APP) $(LIBS) $(IMPORTS) $(LOG)
 
-$(odir)/%.o: %.scm
-	$(CSC) $< -o $@
-
-$(odir)/%.o: ../lib/fileOperations/%.scm
-	$(CSC) $< -o $@
-
-
+test: all
+	./$(APP)
+	 
 .PHONY: all clean
 
 

@@ -41,8 +41,13 @@
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
+	(chicken
+	  (import (scheme base) (scheme write) (matchable)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (helpers) (fileOperations binFileReader)))
 	(else
-	  (import (scheme base) (scheme write) ;; (scheme process-context)
+	  (import (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader))))

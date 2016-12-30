@@ -36,12 +36,10 @@
 	  (import (owl defmac) 
 			  (owl io) 
 			  (scheme base) 
-			  (scheme write)
-			  (bbmatch bbmatch)))
+			  (scheme write)))
 	(else
 	  (import (scheme base) 
-			  (scheme write)
-			  (bbmatch bbmatch))))
+			  (scheme write))))
 
   (begin
 	(define (println . args)
