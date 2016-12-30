@@ -1,6 +1,6 @@
 # ======================================================================
-# Makefile
-# project hexdump
+# app-in-one.mk
+# for ChickenAndShout builds
 #
 # The MIT License (MIT)
 # 
@@ -26,17 +26,32 @@
 #
 # ======================================================================
 
-SOURCES = slprintf/println.scm \
-	tools/exception.scm \
-	slprintf/format/format-char.scm \
-	slprintf/format/format-int.scm \
-	slprintf/format/format-string.scm \
-	slprintf/slprintf.scm \
-	fileOperations/safe-open-file.scm \
-	fileOperations/binFileReader.scm \
-	helpers.scm \
-	hextools.scm
+INCS = -I.
+R7RS = -X r7rs -R r7rs 
+OPT =  -debug-level 0 -verbose $(INCS)
+CSC = csc $(R7RS)
+LOG = mk.log
 
-SRC_APP = hexdump.scm
+RM = rm -f
 
-include ../mk/app-in-one.mk
+APP = $(SRC_APP:%.scm=%.exe)
+APPINONE = appinone-$(SRC_APP)
+
+all: $(APP)
+
+$(APP): $(APPINONE)
+	$(CSC) $< -o $@ 
+
+$(APPINONE): $(SOURCES) $(SRC_APP)
+	cat $(SOURCES) $(SRC_APP) > $@
+
+
+clean:
+	rm -f $(APP) $(APPINONE) $(LOG)
+
+test: all
+	./$(APP)
+	 
+.PHONY: all clean test
+
+

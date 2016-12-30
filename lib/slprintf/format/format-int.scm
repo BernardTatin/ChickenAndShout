@@ -38,6 +38,10 @@
 			  (scheme base) 
 			  (bbmatch bbmatch) 
 			  (tools exception)))
+	(chicken
+	  (import (scheme base) 
+			  (matchable)
+			  (tools exception)))
 	(else
 	  (import (scheme base) 
 			  (bbmatch bbmatch) 

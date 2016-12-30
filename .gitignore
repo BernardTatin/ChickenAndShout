@@ -9,6 +9,7 @@
 *.sld
 compiled/
 *.import.scm
+appinone-*.scm
 
 # Precompiled Headers
 *.gch

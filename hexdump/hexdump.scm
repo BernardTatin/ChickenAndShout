@@ -147,15 +147,29 @@
 			(hexdump)
 			(bbmatch bbmatch) (helpers) (fileOperations fileReader))))
 |#
-(import (scheme base) (scheme write) (scheme process-context)
-		(slprintf println) (slprintf slprintf)
-		(hexdump)
-		(bbmatch bbmatch) (helpers) (fileOperations fileReader))
+(cond-expand
+  (chicken
+	(import (scheme base) (scheme write) (scheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(matchable) (helpers)))
+  (else
+	(import (scheme base) (scheme write) (scheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(bbmatch bbmatch) (helpers))))
 
 (define themain
   (lambda (args)
 	(let ((_args (cdr args)))
-	  (file-hexdump _args))))
+	  (println "_args : " _args)
+	  (match _args
+	   (() (dohelp 0))
+	   (("--help") (dohelp 0))
+	   (("--help" _) (dohelp 0))
+	   (("--version") (doversion 0))
+	   (("--version" _) (doversion 0))
+	   (else (file-hexdump _args))))))
 (themain (command-line))
 #|
 (match (_args)
