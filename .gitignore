@@ -7,6 +7,9 @@
 
 # scheme
 *.sld
+compiled/
+*.import.scm
+appinone-*.scm
 
 # Precompiled Headers
 *.gch
@@ -20,6 +23,7 @@
 
 # logs
 *.log
+tfile
 
 # Shared objects (inc. Windows DLLs)
 *.dll
@@ -44,11 +48,11 @@ objs*/
 *.dSYM/
 
 # ide files
-*.komodoproject
 nbproject/
 .project
 .cproject
 .*.swp
 *~
+*.bak
 .idea/
 *.komodo*

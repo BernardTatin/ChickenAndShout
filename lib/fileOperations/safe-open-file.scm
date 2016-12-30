@@ -40,6 +40,7 @@
 						  (cond-expand
 							(foment (open-binary-input-file file-name))
 							(gauche (open-input-file file-name))
+							(chicken (open-input-file file-name))
 							(else (open-input-file file-name :transcoder #f))))
 						(catch #f))))
 ))

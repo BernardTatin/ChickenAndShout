@@ -1,5 +1,5 @@
 # ======================================================================
-# app.mk
+# app-in-one.mk
 # for ChickenAndShout builds
 #
 # The MIT License (MIT)
@@ -29,37 +29,29 @@
 INCS = -I.
 R7RS = -X r7rs -R r7rs 
 OPT =  -debug-level 0 -verbose $(INCS)
-CSC = csc $(R7RS)
+CSC = csc $(R7RS) $(OPT)
 LOG = mk.log
 
 RM = rm -f
 
-LIBS = $(subst /,.,$(SOURCES:%.scm=%.so))
-IMPORTS = $(LIBS:%.so=%.import.scm)
-
-CSRCS = $(SOURCES:%.scm=%.c)
-
 APP = $(SRC_APP:%.scm=%.exe)
+APPINONE = appinone-$(SRC_APP)
 
 all: $(APP)
 
-$(APP): $(SRC_APP) $(LIBS)
+$(APP): $(APPINONE)
 	$(CSC) $< -o $@ 
 
-$(LIBS): $(SOURCES)
-	for f in $(SOURCES); do \
-		echo "Compile $$f"; \
-		$(CSC) -sJ -o $$(echo $${f%.scm}.so | tr '/' '.') $$f || exit 1; \
-	done
+$(APPINONE): $(SOURCES) $(SRC_APP)
+	cat $(SOURCES) $(SRC_APP) > $@
+
 
 clean:
-	@echo "LIBS: $(LIBS)"
-	@echo "IMPORTS: $(IMPORTS)"
-	rm -f $(APP) $(LIBS) $(IMPORTS) $(LOG)
+	rm -f $(APP) $(APPINONE) $(LOG)
 
 test: all
 	./$(APP)
 	 
-.PHONY: all clean
+.PHONY: all clean test
 
 

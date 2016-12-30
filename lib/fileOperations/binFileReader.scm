@@ -30,9 +30,15 @@
 (define-library
   (fileOperations binFileReader)
   (export binFileReader)
-  (import (scheme base) (scheme read) (scheme file)
-		  (bbmatch bbmatch)
-		  (fileOperations safe-open-file) (tools exception))
+  (cond-expand
+	(chicken
+	  (import (scheme base) (scheme read) (scheme file)
+			  (matchable) (extras)
+			  (fileOperations safe-open-file) (tools exception)))
+	(else
+	  (import (scheme base) (scheme read) (scheme file)
+			  (bbmatch bbmatch)
+			  (fileOperations safe-open-file) (tools exception))))
 
 
   (begin
@@ -65,7 +71,7 @@
 						 (lambda(position count address)
 						   (let ((rs (ifill position count address)))
 							 (match rs
-									((0 _ _) (return #f))
+									((0 _ _) (return (k rs)))
 									((count _ _)
 									 (set! return (call-with-current-continuation
 													(lambda(resume-here)

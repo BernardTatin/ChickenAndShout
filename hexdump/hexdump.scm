@@ -34,11 +34,23 @@
 (define-library
   (hexdump)
   (export file-hexdump)
-  (import
-	(scheme base) (scheme write) (scheme process-context)
-	(slprintf slprintf) (slprintf format format-int) 
-	(tools exception)
-	(bbmatch bbmatch) (helpers) (fileOperations binFileReader))
+  (cond-expand
+	(owl-lisp
+	  (import (owl defmac) (owl io) 
+			  (scheme base) (scheme write)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
+	(chicken
+	  (import (scheme base) (scheme write) (matchable)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (helpers) (fileOperations binFileReader)))
+	(else
+	  (import (scheme base) (scheme write)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader))))
 
   (begin
 
@@ -54,88 +66,117 @@
 	(define format-address
 	  (lambda(address)
 		(let* ((s (number->string address 16))
-			   (l (string-length s))
-			   (d (- 8 l)))
+			   (d (- 8 (string-length s))))
 		  (if (> d 0)
 			(string-append (make-string d #\0) s)
 			s))))
+
+	(define fold-left 
+	  (lambda(op initial sequence)
+		(define iter 
+		  (lambda(result rest)
+			(if (null? rest)
+			  result
+			  (iter (op result (car rest)) (cdr rest)))))
+		(iter initial sequence)))
 
 	(define file-hexdump
 	  (lambda (files)
 		(when (not (null? files))
 		  (let ((current-file (car files)))
-
-
 			(define ixdump
 			  (lambda (rs)
 				(match rs
 					   ((0 _ address) 
-						(display (format-address address))
-						(display ":\n")
+						(slprintf "%s\n" (format-address address))
 						#f)
 					   ((rcount buffer address)
-						(display (format-address address))
-						(display "  ")
-						(let ((real-buffer (if (< rcount bufferLen)
-											 (vector-copy buffer 0 rcount)
-											 buffer)))
-						  (vector-for-each (lambda(x) 
-											 (display (format-hex2 x))
-											 (display " "))
-										   real-buffer)
-						  (display " |")
-						  (vector-for-each (lambda(x)
-											 (display
-											   (cond
-												 ((< x 32) #\.)
-												 ((> x 126) #\.)
-												 (else (integer->char x))
-												 )))
-										   real-buffer)
-						  (display "|\n")
-						  (when (< rcount bufferLen)
-							(display (format-address (+ address rcount)))
-							(display "\n")))
+						(let* ((list-buffer (vector->list (if (< rcount bufferLen)
+															(vector-copy buffer 0 rcount)
+															buffer)))
+							   (str-address (format-address address))
+							   (all-hex (map format-hex2 list-buffer))
+							   (all-ascii (map (lambda(x)
+												 (cond
+												   ((< x 32) ".")
+												   ((> x 126) ".")
+												   (else (string (integer->char x)))
+												   ))
+											   list-buffer)))
+						  (slprintf "%s  %s |%s|\n"
+									str-address
+									(fold-left (lambda(x y)
+												 (string-append x y " "))
+											   ""
+											   all-hex)
+									(apply string-append all-ascii))
 
-						#t))))
+						  #t)))))
 
+			(define xdump 
+			  (lambda (fileReader)
+				(define ixd (lambda ()
+							  (when (fileReader)
+								(ixd))))
+				(ixd)))
 
-			(define xdump (lambda (fileReader)
-							(define ixd (lambda ()
-										  (when (fileReader)
-											(ixd))))
-							(ixd)))
+			(with-exception 
+			  (try
+				(let ((fileReader (binFileReader current-file bufferLen ixdump)))
+				  (when fileReader
+					(xdump fileReader))))
+			  (catch
+				(slprintf "[ERROR] Cannot process file %s\n" current-file)))
 
-			(with-exception (try
-							  (let ((fileReader (binFileReader current-file bufferLen ixdump)))
-								(when fileReader
-								  (xdump fileReader))))
-							(catch
-							  (slprintf "[ERROR] Cannot process file %s\n" current-file)))
-
-			(slprintf "\n")
+			(display "\n")
 			(file-hexdump (cdr files))))))
 
 	))
 
-(import
-  (scheme base) (scheme write) (scheme process-context)
-  (slprintf println) (slprintf slprintf)
-  (hexdump)
-  (bbmatch bbmatch) (helpers) (fileOperations fileReader))
-
-(define main
-  (lambda (args)
-	(let ((_args (cdr (command-line))))
-	  (match (cdr args)
-			 (() (dohelp 0))
-			 (("--help") (dohelp 0))
-			 (("--help" _) (dohelp 0))
-			 (("--version") (doversion 0))
-			 (("--version" _) (doversion 0))
-			 (_ (file-hexdump (cdr args)))))))
-
+#|
 (cond-expand
-  (foment (main (command-line)))
-  (gauche (main (command-line)))
-  (else #t))
+  (owl-lisp
+	(import (owl defmac) (owl io) 
+			(scheme base) (scheme write) ;;  -lscheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(bbmatch bbmatch) (helpers) (fileOperations fileReader)))
+  (else
+	(import (scheme base) (scheme write) ;;  -lscheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(bbmatch bbmatch) (helpers) (fileOperations fileReader))))
+|#
+(cond-expand
+  (chicken
+	(import (scheme base) (scheme write) (scheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(matchable) (helpers)))
+  (else
+	(import (scheme base) (scheme write) (scheme process-context)
+			(slprintf println) (slprintf slprintf)
+			(hexdump)
+			(bbmatch bbmatch) (helpers))))
+
+(define themain
+  (lambda (args)
+	(let ((_args (cdr args)))
+	  (println "_args : " _args)
+	  (match _args
+	   (() (dohelp 0))
+	   (("--help") (dohelp 0))
+	   (("--help" _) (dohelp 0))
+	   (("--version") (doversion 0))
+	   (("--version" _) (doversion 0))
+	   (else (file-hexdump _args))))))
+(themain (command-line))
+#|
+(match (_args)
+	   (() (dohelp 0))
+	   (("--help") (dohelp 0))
+	   (("--help" _) (dohelp 0))
+	   (("--version") (doversion 0))
+	   (("--version" _) (doversion 0))
+	   (_ (file-hexdump _args))))))
+|#
