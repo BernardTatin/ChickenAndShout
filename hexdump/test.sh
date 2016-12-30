@@ -1,27 +1,28 @@
 #!/bin/bash
 
-cat *.scm > tfile
+[[ -f tfile ]] || (cat **/*.scm > tfile; rm ref.log)
 echo 'hexdump ========================================'
-hexdump -C -v tfile | tr -s ' ' > ref.log
-# hexdump -C -v tfile  > ref.log
+[[ -f ref.log ]] || hexdump -C -v tfile | tr -s ' ' > ref.log
+
+echo 'sagittarius ========================================'
+time sagittarius -r 7 -L . ./hexdump.scm tfile | tr -s ' ' > sagittarius.log
+
 echo 'gosh ========================================'
-gosh -r 7 -I ../lib -I . ./hexdump.scm tfile | tr -s ' ' > gosh.log
-# gosh -r 7 -I ../lib -I . ./hexdump.scm tfile > gosh.log
+time gosh -r 7 -I ../lib -I . ./hexdump.scm tfile | tr -s ' ' > gosh.log
+
 echo 'foment ========================================'
-foment -I ../lib -I . ./hexdump.scm tfile | tr -s ' ' > foment.log
-# foment -I ../lib -I . ./hexdump.scm tfile > foment.log
+time foment -I ../lib -I . ./hexdump.scm tfile | tr -s ' ' > foment.log
+
 echo 'chicken ========================================'
 gmake all &> mak.log
-./hexdump.exe tfile | tr -s ' ' > chicken.log
-# chicken -r 7 -L . ./hexdump.scm tfile > chicken.log
+time ./hexdump.exe tfile | tr -s ' ' > chicken.log
+
 echo 'done ========================================'
 
 
-for sch in gosh foment chicken
+for sch in sagittarius gosh foment chicken
 do
 	echo "======================================================================"
 	echo "$sch"
 	diff -EbBw ref.log $sch.log > /dev/null || echo "FAILED !!!!"
 done
-# rm tfile
-
