@@ -35,6 +35,10 @@
 	  (import (scheme base) (scheme read) (scheme file)
 			  (matchable) (extras)
 			  (fileOperations safe-open-file) (tools exception)))
+	(sagittarius
+	  (import (scheme base) (scheme read) (scheme file)
+			  (match)
+			  (fileOperations safe-open-file) (tools exception)))
 	(else
 	  (import (scheme base) (scheme read) (scheme file)
 			  (bbmatch bbmatch)

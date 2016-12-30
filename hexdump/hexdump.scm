@@ -41,6 +41,11 @@
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
+	(sagittarius
+	  (import (scheme base) (scheme write) (match)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (helpers) (fileOperations binFileReader)))
 	(chicken
 	  (import (scheme base) (scheme write) (matchable)
 			  (slprintf slprintf) (slprintf format format-int) 
@@ -133,6 +138,9 @@
 
 	))
 
+;; gosh and sagittarius need this define-library in order to
+;; use cond-expand
+
 (define-library
   (main-entry-point)
   (export themain)
@@ -142,6 +150,11 @@
 			  (slprintf println) (slprintf slprintf)
 			  (hexdump)
 			  (matchable) (helpers)))
+	(sagittarius
+	  (import (scheme base) (scheme write) (scheme process-context)
+			  (slprintf println) (slprintf slprintf)
+			  (hexdump)
+			  (match) (helpers)))
 	(else
 	  (import (scheme base) (scheme write) (scheme process-context)
 			  (slprintf println) (slprintf slprintf)
