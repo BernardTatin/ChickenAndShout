@@ -46,34 +46,41 @@
 
 
   (begin
-	(cond-expand
-	  ((or gauche foment sagittarius) (define read-byte read-u8))
-	  (else #t))
 
 	(define binFileReader
 	  (lambda (file-name buffer-size k)
 
 		(define control-state
 		  (lambda (return)
-			(let ((buffer (make-vector buffer-size))
-				  (fHandle (safe-open-file file-name)))
+			(let ((fHandle (safe-open-file file-name)))
 
-			  (define ifill
-				(lambda (position count address)
-				  (let ((c (read-byte fHandle)))
+			  (define bytevector-to-list
+				(lambda(byte-vector len)
+				  (letrec ((loop
+							 (lambda(k acc)
+							   (if (< k len)
+								 (loop (+ 1 k) 
+									   (cons 
+										 (bytevector-u8-ref byte-vector k) 
+										 acc))
+								 acc))))
+					(reverse (loop 0 '())))))
+
+			  (define inner-fill-buffer
+				(lambda (count address)
+				  (let* ((v (read-bytevector buffer-size fHandle)))
 					(cond
-					  ((eof-object? c)
-					   (list count buffer address))
-					  ((= count (- buffer-size 1))
-					   (vector-set! buffer position c)
-					   (list (+ count 1) buffer address))
+					  ((eof-object? v)
+					   (list 0 #f address))
 					  (else
-						(vector-set! buffer position c)
-						(ifill (+ 1 position) (+ 1 count) address))))))
+						(let ((bvlen (bytevector-length v)))
+						  (list (+ count bvlen) 
+								(bytevector-to-list v bvlen) 
+								address)))))))
 
 			  (letrec ((loop 
-						 (lambda(position count address)
-						   (let ((rs (ifill position count address)))
+						 (lambda(count address)
+						   (let ((rs (inner-fill-buffer count address)))
 							 (match rs
 									((0 _ _) (return (k rs)))
 									((count _ _)
@@ -81,9 +88,9 @@
 													(lambda(resume-here)
 													  (set! control-state resume-here)
 													  (return (k rs)))))
-									 (loop 0 0 (+ address count)))
+									 (loop 0 (+ address count)))
 									)))))
-				(loop 0 0 0)))))
+				(loop 0 0)))))
 
 		(define (generator)
 		  (call-with-current-continuation control-state))
