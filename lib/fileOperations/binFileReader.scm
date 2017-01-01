@@ -47,8 +47,7 @@
 
   (begin
 	(cond-expand
-	  ((or gauche foment sagittarius) (define read-byte read-u8))
-	  (else #t))
+	  ((or gauche foment sagittarius) (define read-byte read-u8)))
 
 	(define binFileReader
 	  (lambda (file-name buffer-size k)
@@ -58,7 +57,8 @@
 			(let ((buffer (make-vector buffer-size))
 				  (fHandle (safe-open-file file-name)))
 
-			  (define ifill
+			  #|
+			  (define inner-fill-buffer
 				(lambda (position count address)
 				  (let ((c (read-byte fHandle)))
 					(cond
@@ -69,11 +69,33 @@
 					   (list (+ count 1) buffer address))
 					  (else
 						(vector-set! buffer position c)
-						(ifill (+ 1 position) (+ 1 count) address))))))
+						(inner-fill-buffer (+ 1 position) (+ 1 count) address))))))
+			  |#
+			  (define bytevector-to-vector
+				(lambda(byte-vector simple-vector len)
+				  (letrec ((loop
+							 (lambda(k)
+							   (when (< k len)
+								 (vector-set! simple-vector 
+											  k 
+											  (bytevector-u8-ref byte-vector k))
+								 (loop (+ 1 k))))))
+					(loop 0))))
+
+			  (define inner-fill-buffer
+				(lambda (position count address)
+				  (let* ((v (read-bytevector buffer-size fHandle)))
+					(cond
+					  ((eof-object? v)
+					   (list 0 #f address))
+					  (else
+						(let ((bvlen (bytevector-length v)))
+						  (bytevector-to-vector v buffer bvlen)
+						  (list (+ count bvlen) buffer address)))))))
 
 			  (letrec ((loop 
 						 (lambda(position count address)
-						   (let ((rs (ifill position count address)))
+						   (let ((rs (inner-fill-buffer position count address)))
 							 (match rs
 									((0 _ _) (return (k rs)))
 									((count _ _)
