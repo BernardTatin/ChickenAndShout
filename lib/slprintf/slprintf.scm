@@ -42,6 +42,15 @@
 			  (slprintf format format-string) 
 			  (slprintf format format-int) 
 			  (slprintf format format-char)))
+	(sagittarius
+	  (import (scheme base) 
+			  (scheme write) 
+			  (scheme char) 
+			  (match)
+			  (tools exception)
+			  (slprintf format format-string) 
+			  (slprintf format format-int) 
+			  (slprintf format format-char)))
 	(chicken
 	  (import (scheme base) 
 			  (scheme write) 

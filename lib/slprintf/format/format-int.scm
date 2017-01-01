@@ -38,6 +38,10 @@
 			  (scheme base) 
 			  (bbmatch bbmatch) 
 			  (tools exception)))
+	(sagittarius
+	  (import (scheme base) 
+			  (match)
+			  (tools exception)))
 	(chicken
 	  (import (scheme base) 
 			  (matchable)

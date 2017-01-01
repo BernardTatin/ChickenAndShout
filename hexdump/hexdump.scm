@@ -41,6 +41,11 @@
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
+	(sagittarius
+	  (import (scheme base) (scheme write) (match)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (tools exception)
+			  (helpers) (fileOperations binFileReader)))
 	(chicken
 	  (import (scheme base) (scheme write) (matchable)
 			  (slprintf slprintf) (slprintf format format-int) 
@@ -88,7 +93,7 @@
 			  (lambda (rs)
 				(match rs
 					   ((0 _ address) 
-						(slprintf "%s\n" (format-address address))
+						(slprintf "%s" (format-address address))
 						#f)
 					   ((rcount buffer address)
 						(let* ((list-buffer (vector->list (if (< rcount bufferLen)
@@ -133,50 +138,38 @@
 
 	))
 
-#|
-(cond-expand
-  (owl-lisp
-	(import (owl defmac) (owl io) 
-			(scheme base) (scheme write) ;;  -lscheme process-context)
-			(slprintf println) (slprintf slprintf)
-			(hexdump)
-			(bbmatch bbmatch) (helpers) (fileOperations fileReader)))
-  (else
-	(import (scheme base) (scheme write) ;;  -lscheme process-context)
-			(slprintf println) (slprintf slprintf)
-			(hexdump)
-			(bbmatch bbmatch) (helpers) (fileOperations fileReader))))
-|#
-(cond-expand
-  (chicken
-	(import (scheme base) (scheme write) (scheme process-context)
-			(slprintf println) (slprintf slprintf)
-			(hexdump)
-			(matchable) (helpers)))
-  (else
-	(import (scheme base) (scheme write) (scheme process-context)
-			(slprintf println) (slprintf slprintf)
-			(hexdump)
-			(bbmatch bbmatch) (helpers))))
+;; gosh and sagittarius need this define-library in order to
+;; use cond-expand
 
-(define themain
-  (lambda (args)
-	(let ((_args (cdr args)))
-	  (println "_args : " _args)
-	  (match _args
-	   (() (dohelp 0))
-	   (("--help") (dohelp 0))
-	   (("--help" _) (dohelp 0))
-	   (("--version") (doversion 0))
-	   (("--version" _) (doversion 0))
-	   (else (file-hexdump _args))))))
-(themain (command-line))
-#|
-(match (_args)
-	   (() (dohelp 0))
-	   (("--help") (dohelp 0))
-	   (("--help" _) (dohelp 0))
-	   (("--version") (doversion 0))
-	   (("--version" _) (doversion 0))
-	   (_ (file-hexdump _args))))))
-|#
+(define-library
+  (main-entry-point)
+  (export themain)
+  (cond-expand
+	(chicken
+	  (import (scheme base) (scheme write) (scheme process-context)
+			  (slprintf println) (slprintf slprintf)
+			  (hexdump)
+			  (matchable) (helpers)))
+	(sagittarius
+	  (import (scheme base) (scheme write) (scheme process-context)
+			  (slprintf println) (slprintf slprintf)
+			  (hexdump)
+			  (match) (helpers)))
+	(else
+	  (import (scheme base) (scheme write) (scheme process-context)
+			  (slprintf println) (slprintf slprintf)
+			  (hexdump)
+			  (bbmatch bbmatch) (helpers))))
+
+  (begin
+	(define themain
+	  (lambda (args)
+		(let ((_args (cdr args)))
+		  (match _args
+				 (() (dohelp 0))
+				 (("--help") (dohelp 0))
+				 (("--help" _) (dohelp 0))
+				 (("--version") (doversion 0))
+				 (("--version" _) (doversion 0))
+				 (else (file-hexdump _args))))))
+	(themain (command-line))))
