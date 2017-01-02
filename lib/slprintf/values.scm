@@ -1,11 +1,11 @@
 ;; ========================================================================
-;; format-char.scm
-;; date		: 2016-03-21 23:04
+;; values.scm
+;; date		: 2017-01-02 22:03
 ;; author	: bernard
 ;;
 ;; The MIT License (MIT)
 ;; 
-;; Copyright (c) 2016 Bernard Tatin
+;; Copyright (c) 2016-2017 Bernard Tatin
 ;; 
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "Software"), to deal
@@ -28,24 +28,18 @@
 ;; ======================================================================
 ;; ========================================================================
 
-(define-library 
-  (slprintf format format-char)
-  (export format-char)
-  (cond-expand
-	(owl-lisp
-	  (import (owl defmac) 
-			  (owl io) 
-			  (scheme base) 
-			  (tools exception)))
-	(else
-	  (import (scheme base) 
-			  (tools exception))))
-  (begin
+(define-library
+  (slprintf values)
+  (export default-filler default-len)
+  (import (scheme base))
 
-    (define format-char
-	  (lambda (value)
-		(cond
-		  ((char? value) value)
-		  (else (raise-exception 'ERROR 'format-char "char expected")))))
-    
-))
+  (begin
+    ;; idée limite: faire une macro pour obtenir une constante...
+    (define-syntax default-filler
+      (syntax-rules ()
+        ((default-filler) #\space)))
+
+    (define-syntax default-len
+      (syntax-rules ()
+        ((default-len) -1)))))
+

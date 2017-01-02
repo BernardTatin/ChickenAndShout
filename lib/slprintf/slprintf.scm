@@ -39,24 +39,7 @@
 			  (scheme write) 
 			  (scheme char) 
 			  (tools exception)
-			  (slprintf format format-string) 
-			  (slprintf format format-int) 
-			  (slprintf format format-char)))
-	(sagittarius
-	  (import (scheme base) 
-			  (scheme write) 
-			  (scheme char) 
-			  (match)
-			  (tools exception)
-			  (slprintf format format-string) 
-			  (slprintf format format-int) 
-			  (slprintf format format-char)))
-	(chicken
-	  (import (scheme base) 
-			  (scheme write) 
-			  (scheme char) 
-			  (matchable)
-			  (tools exception)
+			  (slprintf values)
 			  (slprintf format format-string) 
 			  (slprintf format format-int) 
 			  (slprintf format format-char)))
@@ -64,70 +47,125 @@
 	  (import (scheme base) 
 			  (scheme write) 
 			  (scheme char) 
-			  (bbmatch bbmatch)
 			  (tools exception)
+			  (slprintf values)
 			  (slprintf format format-string) 
 			  (slprintf format format-int) 
 			  (slprintf format format-char))))
 
   (begin
 
-	
-    ;; idée limite: faire une macro pour obtenir une constante...
-    (define-syntax default-filler
-      (syntax-rules ()
-        ((default-filler) #\space)))
-
-    (define-syntax default-len
-      (syntax-rules ()
-        ((default-len) -1)))
-    
 	(define (slprintf format . all-args)
-      (when (not (string? format))
-        (raise-exception 'ERROR 'sl-printf "format must be a string"))
+	  (when (not (string? format))
+		(raise-exception 'ERROR 'sl-printf "format must be a string"))
 	  (let ((lformat (string->list format)))
-		(letrec ((display-and-deformat
-				   (lambda(strs lst-of-chars args)
-                     (display strs)
-					 (deformat (cdr lst-of-chars) args #f (default-filler) (default-len))))
-				 (on-else
-				   (lambda(c lst-of-chars args)
+		(letrec ((onstr-unformat
+				   (lambda(strs lst-of-chars args acc)
+					 (unformat (cdr lst-of-chars) 
+							   args 
+							   #f 
+							   (default-filler) 
+							   (default-len)
+							   (cons strs acc))))
+
+				 (oncar-unformat
+				   (lambda(c lst-of-chars args acc)
 					 (display c)
-					 (deformat (cdr lst-of-chars) args #f (default-filler) (default-len))))
-				 (deformat
-				   (lambda(lst-of-chars args in-format filler len)
+					 (unformat (cdr lst-of-chars) 
+							   args 
+							   #f 
+							   (default-filler) 
+							   (default-len)
+							   (cons c acc))))
+
+				 (show-acc
+				   (lambda (acc)
+					 (let ((str-acc (map (lambda(e)
+										   (cond 
+											 ((char? e) (string e))
+											 (else e)))
+										 acc)))
+					   (for-each display (reverse str-acc)))))
+
+				 (unformat
+				   (lambda(lst-of-chars args in-format filler len acc)
 					 (if (not (null? lst-of-chars))
 					   (let ((c (car lst-of-chars)))
 						 (case c
-						   ((#\newline) (newline)
-										(deformat (cdr lst-of-chars) args #f (default-filler) (default-len)))
-						   ((#\%) (deformat (cdr lst-of-chars) args #t (default-filler) (default-len)))
-						   ((#\space #\0) (if in-format
-											(deformat (cdr lst-of-chars) args #t c (default-len))
-											(on-else c lst-of-chars args)))
-						   ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9) (if in-format
-																	(deformat (cdr lst-of-chars) args #t filler (- (char->integer c) (char->integer #\0)))
-																	(on-else c lst-of-chars args)))
-						   ((#\s) (if in-format
-									(display-and-deformat (format-string (car args) #\space -1) lst-of-chars (cdr args))
-									(on-else c lst-of-chars args)))
-						   ((#\x) (if in-format
-									(display-and-deformat (format-int (car args) filler len 16) lst-of-chars (cdr args))
-									(on-else c lst-of-chars args)))
-						   ((#\b) (if in-format
-									(display-and-deformat (format-int (car args) filler len 2) lst-of-chars (cdr args))
-									(on-else c lst-of-chars args)))
-						   ((#\d) (if in-format
-									(display-and-deformat (format-int (car args) filler len 10) lst-of-chars (cdr args))
-									(on-else c lst-of-chars args)))
-						   ((#\c) (if in-format
-									(display-and-deformat (format-char (car args)) lst-of-chars (cdr args))
-									(on-else c lst-of-chars args)))
+						   ((#\newline) 
+							(oncar-unformat c lst-of-chars args acc))
+						   ((#\%) 
+							(unformat (cdr lst-of-chars) 
+									  args #t 
+									  (default-filler) 
+									  (default-len) acc))
+						   ((#\space #\0) 
+							(if in-format
+							  (unformat (cdr lst-of-chars) 
+										args 
+										#t 
+										c 
+										(default-len) acc)
+							  (oncar-unformat c lst-of-chars args acc)))
+						   ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9) 
+							(if in-format
+							  (unformat (cdr lst-of-chars) 
+										args 
+										#t 
+										filler 
+										(- (char->integer c) 
+										   (char->integer #\0)) acc)
+							  (oncar-unformat c lst-of-chars args acc)))
+						   ((#\s) 
+							(if in-format
+							  (onstr-unformat (format-string 
+													  (car args) 
+													  #\space -1) 
+													lst-of-chars 
+													(cdr args) acc)
+							  (oncar-unformat c lst-of-chars args acc)))
+						   ((#\x) 
+							(if in-format
+							  (onstr-unformat (format-int 
+													  (car args) 
+													  filler 
+													  len 
+													  16) 
+													lst-of-chars 
+													(cdr args) acc)
+							  (oncar-unformat c lst-of-chars args acc)))
+						   ((#\b) 
+							(if in-format
+							  (onstr-unformat 
+								(format-int (car args) 
+											filler 
+											len 
+											2) 
+								lst-of-chars 
+								(cdr args) acc)
+							  (oncar-unformat c lst-of-chars args acc)))
+						   ((#\d) 
+							(if in-format
+							  (onstr-unformat 
+								(format-int (car args) 
+											filler 
+											len 
+											10) 
+								lst-of-chars 
+								(cdr args) acc)
+							  (oncar-unformat c lst-of-chars args acc)))
+						   ((#\c) 
+							(if in-format
+							  (onstr-unformat 
+								(format-char (car args)) 
+								lst-of-chars 
+								(cdr args) acc)
+							  (oncar-unformat c lst-of-chars args acc)))
 						   (else
-                            (if in-format
-                                (raise-exception 'ERROR 'sl-printf "Bad format definition")
-                                (display-and-deformat c lst-of-chars args)))))
-					   #t))))
-		  (deformat lformat all-args #f (default-filler) (default-len)))))
+							 (if in-format
+							   (raise-exception 'ERROR 'sl-printf "Bad format definition")
+							   (onstr-unformat c lst-of-chars args acc)))))
+					   acc))))
+		  (show-acc (unformat lformat all-args #f (default-filler) (default-len)'())))))
 
 	))
