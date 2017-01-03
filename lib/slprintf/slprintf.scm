@@ -30,7 +30,7 @@
 
 (define-library
   (slprintf slprintf)
-  (export slprintf)
+  (export sprintf slprintf)
   (cond-expand
 	(owl-lisp
 	  (import (owl defmac) 
@@ -55,9 +55,15 @@
 
   (begin
 
-	(define (slprintf format . all-args)
+	(define show-acc
+	  (lambda (acc)
+		(for-each display (reverse acc))))
+
+	(define (ksprintf format . all-args)
 	  (when (not (string? format))
-		(raise-exception 'ERROR 'sl-printf "format must be a string"))
+		(raise-exception 'ERROR 'sprintf "format must be a string"))
+	  (display "Format : ") (display format) (newline)
+	  (display "Args   : ") (display all-args) (newline)
 	  (let ((lformat (string->list format)))
 		(letrec ((onstr-unformat
 				   (lambda(strs lst-of-chars args acc)
@@ -78,14 +84,7 @@
 							   (default-len)
 							   (cons c acc))))
 
-				 (show-acc
-				   (lambda (acc)
-					 (let ((str-acc (map (lambda(e)
-										   (cond 
-											 ((char? e) (string e))
-											 (else e)))
-										 acc)))
-					   (for-each display (reverse str-acc)))))
+
 
 				 (unformat
 				   (lambda(lst-of-chars args in-format filler len acc)
@@ -119,20 +118,20 @@
 						   ((#\s) 
 							(if in-format
 							  (onstr-unformat (format-string 
-													  (car args) 
-													  #\space -1) 
-													lst-of-chars 
-													(cdr args) acc)
+												(car args) 
+												#\space -1) 
+											  lst-of-chars 
+											  (cdr args) acc)
 							  (oncar-unformat c lst-of-chars args acc)))
 						   ((#\x) 
 							(if in-format
 							  (onstr-unformat (format-int 
-													  (car args) 
-													  filler 
-													  len 
-													  16) 
-													lst-of-chars 
-													(cdr args) acc)
+												(car args) 
+												filler 
+												len 
+												16) 
+											  lst-of-chars 
+											  (cdr args) acc)
 							  (oncar-unformat c lst-of-chars args acc)))
 						   ((#\b) 
 							(if in-format
@@ -166,6 +165,29 @@
 							   (raise-exception 'ERROR 'sl-printf "Bad format definition")
 							   (onstr-unformat c lst-of-chars args acc)))))
 					   acc))))
-		  (show-acc (unformat lformat all-args #f (default-filler) (default-len)'())))))
+		  (reverse (unformat lformat all-args #f (default-filler) (default-len)'())))))
+
+	(define ks
+	  (lambda(format)
+		(lambda args
+		  (ksprintf format (car args)))))
+
+	(define (sprintf format . args)
+	  (with-exception
+		(try 
+		  (apply string-append (ksprintf format args)))
+		(catch
+		  "oups!!!")))
+
+	(define slprintf 
+	  (lambda all-args
+	  (with-exception
+		(try 
+		  (let ((format (car all-args))
+				(args (cdr all-args)))
+			(let ((ksf (ks format)))
+			  (display (apply string-append (apply ksf args))))))
+		(catch
+		  "oups!!!"))))
 
 	))

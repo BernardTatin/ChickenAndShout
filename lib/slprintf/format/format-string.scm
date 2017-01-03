@@ -45,13 +45,16 @@
 	(define format-string
 	  (lambda(value filler len)
 		(cond
+		  ((null? value)
+			 "<null>")
+		  ((pair? value)
+			 (format-string (car value) filler len))
 		  ((string? value)
-		   (let* ((s value)
-				  (l (string-length s))
+		   (let* ((l (string-length value))
 				  (d (- len l)))
 			 (if (> d 0)
-			   (string-append (make-string d filler) s)
-			   s)))
+			   (string-append (make-string d filler) value)
+			   value)))
 		  (else
 			(raise-exception 'ERROR 'format-string "String expected")))))
 
