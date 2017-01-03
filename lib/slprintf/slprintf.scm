@@ -64,8 +64,8 @@
 			(raise-exception 'ERROR 'sprintf "format must be a string"))
 		  (let ((lformat (string->list format)))
 			(letrec ((onstr-unformat
-					   (lambda(strs lst-of-chars args acc)
-						 (unformat (cdr lst-of-chars) 
+					   (lambda(strs lst-format args acc)
+						 (unformat (cdr lst-format) 
 								   args 
 								   #f 
 								   (default-filler) 
@@ -73,53 +73,53 @@
 								   (cons strs acc))))
 
 					 (oncar-unformat
-					   (lambda(c lst-of-chars args acc)
-						 (unformat (cdr lst-of-chars) 
+					   (lambda(c lst-format args acc)
+						 (unformat (cdr lst-format) 
 								   args 
 								   #f 
 								   (default-filler) 
 								   (default-len)
-								   (cons c acc))))
+								   (cons (string c) acc))))
 
 
 
 					 (unformat
-					   (lambda(lst-of-chars args in-format filler len acc)
-						 (if (not (null? lst-of-chars))
-						   (let ((c (car lst-of-chars)))
+					   (lambda(lst-format args in-format filler len acc)
+						 (if (not (null? lst-format))
+						   (let ((c (car lst-format)))
 							 (case c
 							   ((#\newline) 
-								(oncar-unformat c lst-of-chars args acc))
+								(oncar-unformat c lst-format args acc))
 							   ((#\%) 
-								(unformat (cdr lst-of-chars) 
+								(unformat (cdr lst-format) 
 										  args #t 
 										  (default-filler) 
 										  (default-len) acc))
 							   ((#\space #\0) 
 								(if in-format
-								  (unformat (cdr lst-of-chars) 
+								  (unformat (cdr lst-format) 
 											args 
 											#t 
 											c 
 											(default-len) acc)
-								  (oncar-unformat c lst-of-chars args acc)))
+								  (oncar-unformat c lst-format args acc)))
 							   ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9) 
 								(if in-format
-								  (unformat (cdr lst-of-chars) 
+								  (unformat (cdr lst-format) 
 											args 
 											#t 
 											filler 
 											(- (char->integer c) 
 											   (char->integer #\0)) acc)
-								  (oncar-unformat c lst-of-chars args acc)))
+								  (oncar-unformat c lst-format args acc)))
 							   ((#\s) 
 								(if in-format
 								  (onstr-unformat (format-string 
 													(car args) 
 													#\space -1) 
-												  lst-of-chars 
+												  lst-format 
 												  (cdr args) acc)
-								  (oncar-unformat c lst-of-chars args acc)))
+								  (oncar-unformat c lst-format args acc)))
 							   ((#\x) 
 								(if in-format
 								  (onstr-unformat (format-int 
@@ -127,9 +127,9 @@
 													filler 
 													len 
 													16) 
-												  lst-of-chars 
+												  lst-format 
 												  (cdr args) acc)
-								  (oncar-unformat c lst-of-chars args acc)))
+								  (oncar-unformat c lst-format args acc)))
 							   ((#\b) 
 								(if in-format
 								  (onstr-unformat 
@@ -137,9 +137,9 @@
 												filler 
 												len 
 												2) 
-									lst-of-chars 
+									lst-format 
 									(cdr args) acc)
-								  (oncar-unformat c lst-of-chars args acc)))
+								  (oncar-unformat c lst-format args acc)))
 							   ((#\d) 
 								(if in-format
 								  (onstr-unformat 
@@ -147,20 +147,20 @@
 												filler 
 												len 
 												10) 
-									lst-of-chars 
+									lst-format 
 									(cdr args) acc)
-								  (oncar-unformat c lst-of-chars args acc)))
+								  (oncar-unformat c lst-format args acc)))
 							   ((#\c) 
 								(if in-format
 								  (onstr-unformat 
 									(format-char (car args)) 
-									lst-of-chars 
+									lst-format 
 									(cdr args) acc)
-								  (oncar-unformat c lst-of-chars args acc)))
+								  (oncar-unformat c lst-format args acc)))
 							   (else
 								 (if in-format
 								   (raise-exception 'ERROR 'sl-printf "Bad format definition")
-								   (onstr-unformat c lst-of-chars args acc)))))
+								   (oncar-unformat c lst-format args acc)))))
 						   acc))))
 			  (reverse 
 				(unformat lformat 
@@ -171,33 +171,22 @@
 						  '())))))))
 
 
-	(define raw-list-to-strings
+	(define raw-list-to-string
 	  (lambda (ks)
 		(cond
-		  ((null? ks) ks)
+		  ((null? ks) "")
 		  (else
-			(map (lambda(e)
-				   (cond
-					 ((null? e) "<null>")
-					 ((char? e) (string e))
-					 ((pair? e) "<pair>")
-					 ((string? e) e)
-					 (else "<bad>")))
-				 ks)))))
+			(apply string-append ks)))))
 
 	(define (sprintf . args)
 	  (with-exception
 		(try 
-		  (apply string-append (raw-list-to-strings (apply ksprintf args))))
+		  (raw-list-to-string (apply ksprintf args)))
 		(catch
 		  "oups!!!")))
 
 	(define slprintf 
 	  (lambda all-args
-		(with-exception
-		  (try 
-			(display (apply sprintf all-args)))
-		  (catch
-			"oups!!!"))))
+		(display (apply sprintf all-args))))
 
 	))
