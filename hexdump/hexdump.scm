@@ -61,30 +61,6 @@
 
 	(define bufferLen	16)
 
-	(define format-hex2
-	  (lambda(x)
-		(let ((r (number->string x 16)))
-		  (if (< x 16)
-			(string-append "0" r)
-			r))))
-
-	(define format-address
-	  (lambda(address)
-		(let* ((s (number->string address 16))
-			   (d (- 8 (string-length s))))
-		  (if (> d 0)
-			(string-append (make-string d #\0) s)
-			s))))
-
-	(define fold-left 
-	  (lambda(op initial sequence)
-		(define iter 
-		  (lambda(result rest)
-			(if (null? rest)
-			  result
-			  (iter (op result (car rest)) (cdr rest)))))
-		(iter initial sequence)))
-
 	(define file-hexdump
 	  (lambda (files)
 		(when (not (null? files))
@@ -93,24 +69,23 @@
 			  (lambda (rs)
 				(match rs
 					   ((0 _ address) 
-						(slprintf "%s" (format-address address))
+						(slprintf "%08x" address)
 						#f)
-					   ((rcount list-buffer address)
-						(let ((str-address (format-address address))
-							  (all-hex (map format-hex2 list-buffer))
+					   ((_ list-buffer address)
+						(let ((all-hex (map (lambda(h)
+											  (sprintf "%02x " h))
+											list-buffer))
 							  (all-ascii (map (lambda(x)
 												(cond
 												  ((< x 32) ".")
 												  ((> x 126) ".")
-												  (else (string (integer->char x)))
-												  ))
+												  (else 
+													(string 
+													  (integer->char x)))))
 											  list-buffer)))
-						  (slprintf "%s  %s |%s|\n"
-									str-address
-									(fold-left (lambda(x y)
-												 (string-append x y " "))
-											   ""
-											   all-hex)
+						  (slprintf "%08x  %s |%s|\n"
+									address
+									(apply string-append all-hex)
 									(apply string-append all-ascii))
 
 						  #t)))))
