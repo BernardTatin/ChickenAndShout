@@ -39,32 +39,41 @@
 	  (import (owl defmac) (owl io) 
 			  (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
 	(sagittarius
 	  (import (scheme base) (scheme write) (match)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (helpers) (fileOperations binFileReader)))
 	(chicken
 	  (import (scheme base) (scheme write) (matchable)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (helpers) (fileOperations binFileReader)))
 	(else
 	  (import (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader))))
 
   (begin
 
-	(define bufferLen	16)
+
+	(define-syntax bufferLen
+	  (syntax-rules ()
+					((bufferLen) 16)))
+
 
 	(define file-hexdump
 	  (lambda (files)
 		(when (not (null? files))
 		  (let ((current-file (car files)))
+
 			(define ixdump
 			  (lambda (rs)
 				(match rs
@@ -90,18 +99,18 @@
 
 						  #t)))))
 
-			(define xdump 
-			  (lambda (fileReader)
-				(define ixd (lambda ()
-							  (when (fileReader)
-								(ixd))))
-				(ixd)))
 
 			(with-exception 
 			  (try
-				(let ((fileReader (binFileReader current-file bufferLen ixdump)))
+				(let ((fileReader 
+						(binFileReader current-file (bufferLen) ixdump)))
+				  (define loop
+					(lambda (fileReader)
+					  (when (fileReader)
+						(loop fileReader))))
+
 				  (when fileReader
-					(xdump fileReader))))
+					(loop fileReader))))
 			  (catch
 				(slprintf "[ERROR] Cannot process file %s\n" current-file)))
 

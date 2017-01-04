@@ -34,12 +34,14 @@
   (import (scheme base))
 
   (begin
-    ;; idée limite: faire une macro pour obtenir une constante...
-    (define-syntax default-filler
-      (syntax-rules ()
-        ((default-filler) #\space)))
+	;; idée limite: faire une macro pour obtenir une constante...
 
-    (define-syntax default-len
-      (syntax-rules ()
-        ((default-len) -1)))))
+
+	(define-syntax default-filler
+	  (syntax-rules ()
+					((default-filler) #\space)))
+
+	(define-syntax default-len
+	  (syntax-rules ()
+					((default-len) -1)))))
 

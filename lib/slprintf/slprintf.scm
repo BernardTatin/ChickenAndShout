@@ -79,7 +79,7 @@
 								   #f 
 								   (default-filler) 
 								   (default-len)
-								   (cons (string c) acc))))
+								   (cons c acc))))
 
 
 
@@ -176,13 +176,18 @@
 		(cond
 		  ((null? ks) "")
 		  (else
-			(apply string-append ks)))))
+			(apply string-append (map (lambda(e)
+										(cond
+										  ((char? e) (string e))
+										  (else e)))
+										ks))))))
 
-	(define (slsprintf . args)
-	  (raw-list-to-string (apply ksprintf args)))
+	(define slsprintf 
+	  (lambda all-args
+		(raw-list-to-string (apply ksprintf all-args))))
 
 	(define slprintf 
 	  (lambda all-args
-		(display (apply slsprintf all-args))))
+		(display (raw-list-to-string (apply ksprintf all-args)))))
 
 	))

@@ -27,11 +27,11 @@
 # ======================================================================
 
 SOURCES = slprintf/println.scm \
+	slprintf/values.scm \
 	tools/exception.scm \
 	slprintf/format/format-char.scm \
 	slprintf/format/format-int.scm \
 	slprintf/format/format-string.scm \
-	slprintf/values.scm \
 	slprintf/slprintf.scm \
 	fileOperations/safe-open-file.scm \
 	fileOperations/binFileReader.scm \
