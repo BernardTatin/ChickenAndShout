@@ -73,7 +73,7 @@
 						#f)
 					   ((_ list-buffer address)
 						(let ((all-hex (map (lambda(h)
-											  (sprintf "%02x " h))
+											  (slsprintf "%02x " h))
 											list-buffer))
 							  (all-ascii (map (lambda(x)
 												(cond

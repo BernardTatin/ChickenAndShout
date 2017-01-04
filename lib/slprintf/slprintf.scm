@@ -30,7 +30,7 @@
 
 (define-library
   (slprintf slprintf)
-  (export sprintf slprintf)
+  (export slsprintf slprintf)
   (cond-expand
 	(owl-lisp
 	  (import (owl defmac) 
@@ -178,7 +178,7 @@
 		  (else
 			(apply string-append ks)))))
 
-	(define (sprintf . args)
+	(define (slsprintf . args)
 	  (with-exception
 		(try 
 		  (raw-list-to-string (apply ksprintf args)))
@@ -187,6 +187,6 @@
 
 	(define slprintf 
 	  (lambda all-args
-		(display (apply sprintf all-args))))
+		(display (apply slsprintf all-args))))
 
 	))
