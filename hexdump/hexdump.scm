@@ -42,6 +42,12 @@
 			  (slprintf values)
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
+	(gosh
+	  (import (scheme base) (scheme write) (util match)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
+			  (tools exception)
+			  (helpers) (fileOperations binFileReader)))
 	(sagittarius
 	  (import (scheme base) (scheme write) (match)
 			  (slprintf slprintf) (slprintf format format-int) 
@@ -131,6 +137,11 @@
 			  (slprintf println) (slprintf slprintf)
 			  (hexdump)
 			  (matchable) (helpers)))
+	(gosh
+	  (import (scheme base) (scheme write) (scheme process-context)
+			  (slprintf println) (slprintf slprintf)
+			  (hexdump)
+			  (utils match) (helpers)))
 	(sagittarius
 	  (import (scheme base) (scheme write) (scheme process-context)
 			  (slprintf println) (slprintf slprintf)
