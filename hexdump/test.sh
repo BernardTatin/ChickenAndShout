@@ -1,5 +1,15 @@
 #!/bin/bash
 
+OS=$(uname)
+case ${OS} in
+	FreeBSD)
+		MAKE=gmake
+		;;
+	*)
+		MAKE=make
+		;;
+esac
+
 echo 'clean ========================================'
 rm -fv sagittarius.log gosh.log foment.log chicken.log
 rm -fv appinone-hexdump.scm hexdump.exe
@@ -18,7 +28,7 @@ echo 'foment ========================================'
 time foment -I ../lib -I . ./hexdump.scm tfile | tr -s ' ' > foment.log
 
 echo 'chicken ========================================'
-gmake all &> mak.log
+${MAKE} all &> mak.log
 time ./hexdump.exe tfile | tr -s ' ' > chicken.log
 
 echo 'done ========================================'
