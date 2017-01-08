@@ -26,8 +26,17 @@
 #
 # ======================================================================
 
-SOURCES = helpers.scm hexdump.scm hextools.scm ../lib/fileOperations/simpleFileReader.scm
-APP = hexdump.exe
-EXTENSIONS = 
+SOURCES = slprintf/println.scm \
+	tools/exception.scm \
+	slprintf/format/format-char.scm \
+	slprintf/format/format-int.scm \
+	slprintf/format/format-string.scm \
+	slprintf/slprintf.scm \
+	fileOperations/safe-open-file.scm \
+	fileOperations/binFileReader.scm \
+	helpers.scm \
+	hextools.scm
 
-include ../mk/app.mk
+SRC_APP = hexdump.scm
+
+include ../mk/app-in-one.mk

@@ -31,7 +31,15 @@
 (define-library 
   (slprintf println)
   (export println err-println)
-  (import (scheme base) (scheme write))
+  (cond-expand
+	(owl-lisp
+	  (import (owl defmac) 
+			  (owl io) 
+			  (scheme base) 
+			  (scheme write)))
+	(else
+	  (import (scheme base) 
+			  (scheme write))))
 
   (begin
 	(define (println . args)

@@ -29,46 +29,56 @@
 ;; ======================================================================
 
 (define-library
- (tools exception)
- (import (scheme base) (scheme write) (slprintf println))
- (export with-exception raise-exception print-exception)
- (begin
+  (tools exception)
+  (export with-exception raise-exception print-exception)
+  (cond-expand
+	(owl-lisp
+	  (import (owl defmac) 
+			  (owl io) 
+			  (scheme base) 
+			  (scheme write) 
+			  (slprintf println)))
+	(else
+	  (import (scheme base) 
+			  (scheme write) 
+			  (slprintf println))))
+  (begin
 
-   (define-syntax with-exception
-     (syntax-rules (try catch)
-       ((with-exception (try <dotry>) (catch <docatch>))
-        (guard
-         (exc
-          (else
-           (begin
-             (println "[SYS ERROR] --> " exc)
-             <docatch>
-             )
-           ))
-         (begin
-           <dotry>)))))
+	(define-syntax with-exception
+	  (syntax-rules (try catch)
+					((with-exception (try <dotry>) (catch <docatch>))
+					 (guard
+					   (exc
+						 (else
+						   (begin
+							 (println "[SYS ERROR] --> " exc)
+							 <docatch>
+							 )
+						   ))
+					   (begin
+						 <dotry>)))))
 
-   (define-record-type <exception>
-     (make-exception type     ;; error, fatal error, warning...
-      source   ;; file, function
-      text)
-     exception?
-     (type exception-type)
-     (source exception-source)
-     (text exception-text))
+	(define-record-type <exception>
+						(make-exception type     ;; error, fatal error, warning...
+										source   ;; file, function
+										text)
+						exception?
+						(type exception-type)
+						(source exception-source)
+						(text exception-text))
 
-   (define raise-exception
-     (lambda (type source text)
-       (raise (make-exception type source text))))
+	(define raise-exception
+	  (lambda (type source text)
+		(raise (make-exception type source text))))
 
-   (define print-exception
-     (lambda (exception)
-       (cond
-        ((string? exception) (println "ERROR: " exception))
-        ((exception? exception) (println (exception-type exception) ": "
-                                         (exception-source exception) " - "
-                                         (exception-text exception)))
-        (else (println "ERROR of unexpected type: " exception)))))
+	(define print-exception
+	  (lambda (exception)
+		(cond
+		  ((string? exception) (println "ERROR: " exception))
+		  ((exception? exception) (println (exception-type exception) ": "
+										   (exception-source exception) " - "
+										   (exception-text exception)))
+		  (else (println "ERROR of unexpected type: " exception)))))
 
-   ))
+	))
 
