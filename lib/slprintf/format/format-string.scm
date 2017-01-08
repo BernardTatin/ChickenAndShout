@@ -36,33 +36,26 @@
 	  (import (owl defmac) 
 			  (owl io) 
 			  (scheme base) 
-			  (bbmatch bbmatch) 
-			  (tools exception)))
-	(sagittarius
-	  (import (scheme base) 
-			  (match)
-			  (tools exception)))
-	(chicken
-	  (import (scheme base) 
-			  (matchable)
 			  (tools exception)))
 	(else
 	  (import (scheme base) 
-			  (bbmatch bbmatch) 
 			  (tools exception))))
   (begin
 
 	(define format-string
 	  (lambda(value filler len)
-        (match value
-               ((? string?)
-                (let* ((s value)
-                       (l (string-length s))
-                       (d (- len l)))
-                (if (> d 0)
-                  (string-append (make-string d filler) s)
-                  s)))
-               (else
-                  (raise-exception 'ERROR 'format-string "String expected")))))
+		(cond
+		  ((null? value)
+			 "<null>")
+		  ((pair? value)
+			 (format-string (car value) filler len))
+		  ((string? value)
+		   (let* ((l (string-length value))
+				  (d (- len l)))
+			 (if (> d 0)
+			   (string-append (make-string d filler) value)
+			   value)))
+		  (else
+			(raise-exception 'ERROR 'format-string "String expected")))))
 
   ))

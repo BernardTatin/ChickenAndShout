@@ -39,94 +39,84 @@
 	  (import (owl defmac) (owl io) 
 			  (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
+	(gosh
+	  (import (scheme base) (scheme write) (util match)
+			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
+			  (tools exception)
+			  (helpers) (fileOperations binFileReader)))
 	(sagittarius
 	  (import (scheme base) (scheme write) (match)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (helpers) (fileOperations binFileReader)))
 	(chicken
 	  (import (scheme base) (scheme write) (matchable)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (helpers) (fileOperations binFileReader)))
 	(else
 	  (import (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
+			  (slprintf values)
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader))))
 
   (begin
 
-	(define bufferLen	16)
 
-	(define format-hex2
-	  (lambda(x)
-		(let ((r (number->string x 16)))
-		  (if (< x 16)
-			(string-append "0" r)
-			r))))
+	(define-syntax bufferLen
+	  (syntax-rules ()
+					((bufferLen) 16)))
 
-	(define format-address
-	  (lambda(address)
-		(let* ((s (number->string address 16))
-			   (d (- 8 (string-length s))))
-		  (if (> d 0)
-			(string-append (make-string d #\0) s)
-			s))))
-
-	(define fold-left 
-	  (lambda(op initial sequence)
-		(define iter 
-		  (lambda(result rest)
-			(if (null? rest)
-			  result
-			  (iter (op result (car rest)) (cdr rest)))))
-		(iter initial sequence)))
 
 	(define file-hexdump
 	  (lambda (files)
 		(when (not (null? files))
 		  (let ((current-file (car files)))
+
 			(define ixdump
 			  (lambda (rs)
 				(match rs
 					   ((0 _ address) 
-						(slprintf "%s" (format-address address))
+						(slprintf "%08x" address)
 						#f)
-					   ((rcount list-buffer address)
-						(let ((str-address (format-address address))
-							  (all-hex (map format-hex2 list-buffer))
+					   ((_ list-buffer address)
+						(let ((all-hex (map (lambda(h)
+											  (slsprintf "%02x " h))
+											list-buffer))
 							  (all-ascii (map (lambda(x)
 												(cond
 												  ((< x 32) ".")
 												  ((> x 126) ".")
-												  (else (string (integer->char x)))
-												  ))
+												  (else 
+													(string 
+													  (integer->char x)))))
 											  list-buffer)))
-						  (slprintf "%s  %s |%s|\n"
-									str-address
-									(fold-left (lambda(x y)
-												 (string-append x y " "))
-											   ""
-											   all-hex)
+						  (slprintf "%08x  %s |%s|\n"
+									address
+									(apply string-append all-hex)
 									(apply string-append all-ascii))
 
 						  #t)))))
 
-			(define xdump 
-			  (lambda (fileReader)
-				(define ixd (lambda ()
-							  (when (fileReader)
-								(ixd))))
-				(ixd)))
 
 			(with-exception 
 			  (try
-				(let ((fileReader (binFileReader current-file bufferLen ixdump)))
+				(let ((fileReader 
+						(binFileReader current-file (bufferLen) ixdump)))
+				  (define loop
+					(lambda (fileReader)
+					  (when (fileReader)
+						(loop fileReader))))
+
 				  (when fileReader
-					(xdump fileReader))))
+					(loop fileReader))))
 			  (catch
 				(slprintf "[ERROR] Cannot process file %s\n" current-file)))
 
@@ -147,6 +137,11 @@
 			  (slprintf println) (slprintf slprintf)
 			  (hexdump)
 			  (matchable) (helpers)))
+	(gosh
+	  (import (scheme base) (scheme write) (scheme process-context)
+			  (slprintf println) (slprintf slprintf)
+			  (hexdump)
+			  (utils match) (helpers)))
 	(sagittarius
 	  (import (scheme base) (scheme write) (scheme process-context)
 			  (slprintf println) (slprintf slprintf)

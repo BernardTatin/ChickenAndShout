@@ -1,7 +1,11 @@
 #!/bin/bash
 
+echo 'clean ========================================'
+rm -fv sagittarius.log gosh.log foment.log chicken.log
+rm -fv appinone-hexdump.scm hexdump.exe
+
+echo 'init ========================================'
 [[ -f tfile ]] || (cat **/*.scm > tfile; rm ref.log)
-echo 'hexdump ========================================'
 [[ -f ref.log ]] || hexdump -C -v tfile | tr -s ' ' > ref.log
 
 echo 'sagittarius ========================================'

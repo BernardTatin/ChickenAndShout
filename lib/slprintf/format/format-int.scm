@@ -36,33 +36,23 @@
 	  (import (owl defmac) 
 			  (owl io) 
 			  (scheme base) 
-			  (bbmatch bbmatch) 
-			  (tools exception)))
-	(sagittarius
-	  (import (scheme base) 
-			  (match)
-			  (tools exception)))
-	(chicken
-	  (import (scheme base) 
-			  (matchable)
 			  (tools exception)))
 	(else
 	  (import (scheme base) 
-			  (bbmatch bbmatch) 
 			  (tools exception))))
 
   (begin
 
 	(define format-int
 	  (lambda(value filler len base)
-        (match value
-               ((? integer?)
-                (let* ((s (number->string value base))
-				 (l (string-length s))
-				 (d (- len l)))
-                (if (> d 0)
-                  (string-append (make-string d filler) s)
-                  s)))
-                (else
-                  (raise-exception 'ERROR 'format-int "Integer expected")))))
+		(cond
+		  ((integer? value)
+		   (let* ((s (number->string value base))
+				  (l (string-length s))
+				  (d (- len l)))
+			 (if (> d 0)
+			   (string-append (make-string d filler) s)
+			   s)))
+		  (else
+			(raise-exception 'ERROR 'format-int "Integer expected")))))
   ))

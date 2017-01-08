@@ -27,6 +27,7 @@
 # ======================================================================
 
 SOURCES = slprintf/println.scm \
+	slprintf/values.scm \
 	tools/exception.scm \
 	slprintf/format/format-char.scm \
 	slprintf/format/format-int.scm \
