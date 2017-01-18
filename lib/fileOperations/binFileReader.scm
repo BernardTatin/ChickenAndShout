@@ -71,30 +71,29 @@
 					(reverse (loop 0 '())))))
 
 			  (define inner-fill-buffer
-				(lambda (count address)
+				(lambda ()
 				  (let* ((v (read-bytevector buffer-size fHandle)))
 					(cond
 					  ((eof-object? v)
-					   (list 0 #f address))
+					   (list 0 #f))
 					  (else
 						(let ((bvlen (bytevector-length v)))
-						  (list (+ count bvlen) 
-								(bytevector-to-list v bvlen) 
-								address)))))))
+						  (list bvlen 
+								(bytevector-to-list v bvlen))))))))
 
 			  (letrec ((loop 
-						 (lambda(count address)
-						   (let ((rs (inner-fill-buffer count address)))
+						 (lambda(address)
+						   (let ((rs (inner-fill-buffer)))
 							 (match rs
-									((0 _ _) (return (k rs)))
-									((count _ _)
+									((0 _) (return (k (list rs address))))
+									((count _)
 									 (set! return (call-with-current-continuation
 													(lambda(resume-here)
 													  (set! control-state resume-here)
-													  (return (k rs)))))
-									 (loop 0 (+ address count)))
-									)))))
-				(loop 0 0)))))
+													  (return (k (list rs address))))))
+									 (loop (+ address count))))
+							 ))))
+				(loop 0)))))
 
 		(define (generator)
 		  (call-with-current-continuation control-state))
