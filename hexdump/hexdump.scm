@@ -40,30 +40,35 @@
 			  (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (slprintf values)
+			  (slprintf format format-int)
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
 	(gosh
 	  (import (scheme base) (scheme write) (util match)
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (slprintf values)
+			  (slprintf format format-int)
 			  (tools exception)
 			  (helpers) (fileOperations binFileReader)))
 	(sagittarius
 	  (import (scheme base) (scheme write) (match)
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (slprintf values)
+			  (slprintf format format-int)
 			  (tools exception)
 			  (helpers) (fileOperations binFileReader)))
 	(chicken
 	  (import (scheme base) (scheme write) (matchable)
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (slprintf values)
+			  (slprintf format format-int)
 			  (tools exception)
 			  (helpers) (fileOperations binFileReader)))
 	(else
 	  (import (scheme base) (scheme write)
 			  (slprintf slprintf) (slprintf format format-int) 
 			  (slprintf values)
+			  (slprintf format format-int)
 			  (tools exception)
 			  (bbmatch bbmatch) (helpers) (fileOperations binFileReader))))
 
@@ -87,8 +92,9 @@
 						(slprintf "%08x" address)
 						#f)
 					   (((_ list-buffer) address)
-						(let ((all-hex (map (lambda(h)
-											  (slsprintf "%02x " h))
+						(let ((str-address (format-int address #\0 8 16))
+							  (all-hex (map (lambda(h)
+											  (string-append (format-int h #\0 2 16) " "))
 											list-buffer))
 							  (all-ascii (map (lambda(x)
 												(cond
@@ -98,8 +104,8 @@
 													(string 
 													  (integer->char x)))))
 											  list-buffer)))
-						  (slprintf "%08x  %s |%s|\n"
-									address
+						  (slprintf "%s  %s |%s|\n"
+									str-address
 									(apply string-append all-hex)
 									(apply string-append all-ascii))
 
