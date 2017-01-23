@@ -85,7 +85,8 @@
 						 (lambda(address)
 						   (let ((rs (inner-fill-buffer)))
 							 (match rs
-									((0 _) (return (k (list rs address))))
+									((0 _) 
+									 (return (k (list rs address))))
 									((count _)
 									 (set! return (call-with-current-continuation
 													(lambda(resume-here)
