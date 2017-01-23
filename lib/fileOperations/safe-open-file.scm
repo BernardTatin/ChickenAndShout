@@ -41,6 +41,7 @@
 							(foment (open-binary-input-file file-name))
 							(gauche (open-binary-input-file file-name))
 							(chicken (open-binary-input-file file-name))
+							(sagittarius (open-binary-input-file file-name))
 							(else (open-input-file file-name :transcoder #f))))
 						(catch #f))))
 ))

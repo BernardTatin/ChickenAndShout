@@ -83,10 +83,10 @@
 			(define ixdump
 			  (lambda (rs)
 				(match rs
-					   ((0 _ address) 
+					   (((0 _) address) 
 						(slprintf "%08x" address)
 						#f)
-					   ((_ list-buffer address)
+					   (((_ list-buffer) address)
 						(let ((all-hex (map (lambda(h)
 											  (slsprintf "%02x " h))
 											list-buffer))
