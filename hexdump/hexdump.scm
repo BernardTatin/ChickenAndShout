@@ -92,9 +92,9 @@
 						(slprintf "%08x" address)
 						#f)
 					   (((_ list-buffer) address)
-						(let ((str-address (format-int address #\0 8 16))
+						(let (;; (str-address (format-int address #\0 8 16))
 							  (all-hex (map (lambda(h)
-											  (string-append (format-int h #\0 2 16) " "))
+											  (slsprintf "%02x " h))
 											list-buffer))
 							  (all-ascii (map (lambda(x)
 												(cond
@@ -104,8 +104,8 @@
 													(string 
 													  (integer->char x)))))
 											  list-buffer)))
-						  (slprintf "%s  %s |%s|\n"
-									str-address
+						  (slprintf "%08x  %s |%s|\n"
+									address
 									(apply string-append all-hex)
 									(apply string-append all-ascii))
 
