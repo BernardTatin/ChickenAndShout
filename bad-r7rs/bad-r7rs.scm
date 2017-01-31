@@ -3,9 +3,32 @@
 ;; Read r7rs sources files and interpret them
 ;; written with r5rs and some extensions
 ;; for guile 2.0.xx
+;;	guile		: OK
+;;  gosh		: FAIL      (gosh -r 7 bad-r7rs.scm, can't find match)
+;;  sagittarius : OK
+;;	chicken		: OK		(csi  -R r7rs bad-r7rs.scm)
+;;	foment		: FAIL		(foment bad-r7rs.scm)
+;;  gambit      : FAIL		(ggsi bad-r7rs.scm, Unbound variable: scheme)
 ;; ======================================================================
 
-(use-modules (ice-9 match))
+(cond-expand
+  (guile 
+	(use-modules (ice-9 match)))
+  (gosh
+	(import (scheme base) (scheme write) (scheme read) (scheme file) 
+			;; (utils match)
+			(util match)
+			))
+  (sagittarius
+	(import (scheme base) (scheme write) (scheme read) (scheme file) (match)))
+  (chicken
+	(import (scheme base) (scheme write) (scheme read) (scheme file) (matchable) (extras)))
+  (else
+	(import (scheme base) (scheme write) (scheme read) 
+			;; (scheme file)
+			)))
+
+
 
 (define read-file
   (lambda(file-name)
@@ -31,7 +54,6 @@
 	(cond
 	  ((null? code) #t)
 	  ((pair? code)
-	   ;; (display "----- pair? ") (display code) (display "\n")
 	   (match code
 			  (('define-library (library-name) rest ...)
 			   (display "Library: <") (display library-name) (display ">\n")
