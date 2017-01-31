@@ -192,7 +192,7 @@ syn match schemeCharacter "#\\x[0-9a-fA-F]\+"
 if exists("b:is_r7rs") || exists("is_r7rs")
     " syn keyword schemeExtSyntax define-library
 	syn region	schemeComment start="#|" end="|#" contains=@Spell
-	syn keyword schemeExtSyntax when define-library guard cond-expand syntax-case syntactic-closures
+	syn keyword schemeExtSyntax when define-library guard cond-expand syntax-case syntactic-closures match
 	syn keyword schemeExtSyntax with-exception-handler
 	syn keyword schemeExtFunc import export raise error
 endif
