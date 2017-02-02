@@ -3,10 +3,11 @@
 ;; Read r7rs sources files and interpret them
 ;; written with r5rs and some extensions
 ;; for guile 2.0.xx
-;;	guile		: OK		(guile bad-r7rs)
+;;	guile		: OK		(guile -s bad-r7rs.scm ../hexdump/hexdump.scm)
+;;  sagittarius : OK		(sagittarius bad-r7rs.scm  ../hexdump/hexdump.scm)
+;;	chicken		: OK		(csi -b  -R r7rs -s bad-r7rs.scm  ../hexdump/hexdump.scm)
+
 ;;  gosh		: FAIL      (gosh -r 7 -I . ./bad-r7rs.scm, can't find match)
-;;  sagittarius : OK		(sagittarius bad-r7rs.scm)
-;;	chicken		: OK		(csi  -R r7rs bad-r7rs.scm)
 ;;	foment		: FAIL		(foment bad-r7rs.scm syntax-violation variable "variable: bound to syntax" irritants: (...))
 ;;  gambit      : FAIL		(ggsi bad-r7rs.scm, Unbound variable: scheme)
 ;; ======================================================================
@@ -15,17 +16,18 @@
   (guile 
 	(use-modules (ice-9 match)))
   (gosh
-	(import (scheme base) (scheme write) (scheme read) (scheme file) (util match)))
+	(import (scheme base) (scheme write) (scheme read) (scheme file) (scheme process-context) (util match)))
   (sagittarius
-	(import (scheme base) (scheme write) (scheme read) (scheme file) (match)))
+	(import (scheme base) (scheme write) (scheme read) (scheme file) (scheme process-context) (match)))
   (chicken
-	(import (scheme base) (scheme write) (scheme read) (scheme file) (matchable) (extras)))
+	(import (scheme base) (scheme write) (scheme read) (scheme file) (scheme process-context) (matchable) (extras)))
   (else
 	(import (scheme base) (scheme write) (scheme read) 
-			;; (scheme file)
+			(scheme process-context) 
 			)))
 
-
+(define (println . args)
+  (for-each display args))
 
 (define read-file
   (lambda(file-name)
@@ -38,13 +40,6 @@
 		(let ((r (rloop '())))
 		  (close-input-port handle)
 		  r)))))
-
-(define show-code
-  (lambda(code)
-	(cond
-	  ((null? code) #t)
-	  ((pair? code) (display "(") (for-each show-code code) (display ")\n"))
-	  (else (display " :") (display code) (display ": ")))))
 
 (define lint-r7rs
   (lambda(code)
@@ -104,18 +99,31 @@
 	  (else #t))))
 
 
-(let ((p (read-file "../hexdump/hexdump.scm")))
-  (for-each (lambda(e)
-			  (display "-->")
-			  (lint-r7rs e)
-			  (display "<--\n")) p))
+(define dohelp
+  (lambda(exe-name exit-code)
+	(println exe-name " [-h|--help] : this text\n")
+	(println exe-name " file [file ...] : lint all the files\n")
+	(exit exit-code)))
 
+(define on-file
+  (lambda (file-name)
+	(let ((p (read-file file-name)))
+	  (for-each 
+		(lambda(e) (println "-->" (lint-r7rs e) "<--\n")) 
+		p))))
 
-#|
-((owl-lisp (import (owl defmac) (owl io) (scheme base) (scheme write) (slprintf slprintf) (slprintf format format-int) (slprintf values) (slprintf format format-int) (tools exception) (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
- (gosh (import (scheme base) (scheme write) (util match) (slprintf slprintf) (slprintf format format-int) (slprintf values) (slprintf format format-int) (tools exception) (helpers) (fileOperations binFileReader)))
- (sagittarius (import (scheme base) (scheme write) (match) (slprintf slprintf) (slprintf format format-int) (slprintf values) (slprintf format format-int) (tools exception) (helpers) (fileOperations binFileReader)))
- (chicken (import (scheme base) (scheme write) (matchable) (slprintf slprintf) (slprintf format format-int) (slprintf values) (slprintf format format-int) (tools exception) (helpers) (fileOperations binFileReader)))
- (else (import (scheme base) (scheme write) (slprintf slprintf) (slprintf format format-int) (slprintf values) (slprintf format format-int) (tools exception) (bbmatch bbmatch) (helpers) (fileOperations binFileReader)))
- )
-|#
+(define themain
+  (lambda (args)
+	(let ((exe-name (car args))
+		  (_args (cdr args)))
+	  (match _args
+			 (() (dohelp exe-name 0))
+			 (("-h") (dohelp exe-name 0))
+			 (("-h" _ ...) (dohelp exe-name 0))
+			 (("--help") (dohelp exe-name 0))
+			 (("--help" _ ...) (dohelp exe-name 0))
+			 (else 
+			   (for-each on-file _args)
+			   (exit 0))))))
+
+(themain (command-line))
