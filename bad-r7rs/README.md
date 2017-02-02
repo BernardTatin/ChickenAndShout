@@ -14,3 +14,18 @@ On FreeBSD, we used :
  - `csi (CHICKEN) 4.11.0`.
 
 For `foment`, `mit-scheme` or `gambit-scheme`, we need some work.
+
+# quick notes
+
+## environment
+
+I need to add an extra parameter, _environment_, to `lint-r7rs` function. It will contain :
+
+ - current file name,
+ - current scope (library, `define`, `let`, `lambda`...),
+ - what else?
+
+This _environment_ can be :
+
+ - a structure unless one of the preceding scheme environment does not support it,
+ - a list.
