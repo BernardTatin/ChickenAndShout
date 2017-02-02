@@ -21,30 +21,31 @@ export issagittarius=$(which sagittarius)
 export isgosh=$(which gosh)
 export isfoment=$(which foment)
 export ischicken=$(which csc)
+time=/usr/bin/time
 
 if [[ -n $issagittarius ]]
 then
     echo 'sagittarius ========================================'
-    time sagittarius -r 7 -L . ./hexdump.scm tfile | tr -s ' ' > sagittarius.log
+    $time -ao sagittarius-time.log sagittarius -r 7 -L . ./hexdump.scm tfile | tr -s ' ' > sagittarius.log
 fi
 
 if [[ -n $isgosh ]]
 then
     echo 'gosh ========================================'
-    time gosh -r 7 -I ../lib -I . ./hexdump.scm tfile | tr -s ' ' > gosh.log
+    $time -ao gosh-time.log gosh -r 7 -I . ./hexdump.scm tfile | tr -s ' ' > gosh.log
 fi
 
 if [[ -n $isfoment ]]
 then
     echo 'foment ========================================'
-    time foment -I ../lib -I . ./hexdump.scm tfile | tr -s ' ' > foment.log
+    $time -ao foment-time.log foment -I . ./hexdump.scm tfile | tr -s ' ' > foment.log
 fi
 
 if [[ -n $ischicken ]]
 then
     echo 'chicken ========================================'
     ${MAKE} all &> mak.log
-    time ./hexdump.exe tfile | tr -s ' ' > chicken.log
+    $time -ao chicken-time.log ./hexdump.exe tfile | tr -s ' ' > chicken.log
 fi
 
 echo 'done ========================================'
@@ -57,6 +58,7 @@ do
     then
     	echo "======================================================================"
     	echo "$sch"
+		tail -5 $sch-time.log
     	diff -EbBw ref.log $sch.log > /dev/null || echo "FAILED !!!!"
     fi
 done
