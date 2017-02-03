@@ -13,7 +13,7 @@ On FreeBSD, we used :
  - `sagittarius 0.7.11`,
  - `csi (CHICKEN) 4.11.0`.
 
-For `foment`, `mit-scheme` or `gambit-scheme`, we need some work.
+For `gosh`, `foment`, `mit-scheme` or `gambit-scheme`, we need some work.
 
 # quick notes
 

@@ -41,21 +41,31 @@
 		  (close-input-port handle)
 		  r)))))
 
+(define on-library
+  (lambda(library-name rest)
+	(println "Library: " library-name "\n")
+	(lint-r7rs rest)))
+
+(define on-export
+  (lambda(exported-symbols rest)
+	(println "Exported symbols : " exported-symbols "\n")
+	(lint-r7rs rest)))
+
+(define on-import
+  (lambda(imported-libs rest)
+	(println "Imported libs :\n")
+	(for-each (lambda(s) (println "   " s "\n")) imported-libs)
+	(lint-r7rs rest)))
+
 (define lint-r7rs
   (lambda(code)
 	(cond
 	  ((null? code) #t)
 	  ((pair? code)
 	   (match code
-			  (('define-library (library-name) rest ...)
-			   (display "Library: <") (display library-name) (display ">\n")
-			   (lint-r7rs rest))
-			  ((('export symbols) rest ...)
-			   (display "  exports <") (display symbols) (display ">\n")
-			   (lint-r7rs rest))
-			  ((('import symbols ...) rest ...)
-			   (display "  imports <") (display symbols) (display ">\n")
-			   (lint-r7rs rest))
+			  (('define-library (library-name ...) rest ...) (on-library library-name rest))
+			  ((('export symbols ...) rest ...) (on-export symbols rest))
+			  ((('import symbols ...) rest ...) (on-import symbols rest))
 			  ((('cond-expand conditionnals ...) rest ...)
 			   (letrec ((loop (lambda(c)
 								(match c
@@ -82,7 +92,7 @@
 											(lint-r7rs rest))
 										  (else (loop others))
 										  ))
-									   (('else more ...)
+									   ((('else more ...))
 										(lint-r7rs more)
 										(lint-r7rs rest))
 									   (((compiler-name _ ...) others ...)
@@ -93,6 +103,8 @@
 			  ((('define body ...) rest ...)
 			   (display "  define <") (display (car body)) (display ">\n")
 			   (lint-r7rs (list (cdr body) rest)))
+			  ((head)
+			   (lint-r7rs head))
 			  ((head rest ...)
 			   (lint-r7rs head)
 			   (lint-r7rs rest))))
@@ -107,10 +119,10 @@
 
 (define on-file
   (lambda (file-name)
+	(println "----------------------------------------------------------------------\n")
+	(println file-name "\n\n")
 	(let ((p (read-file file-name)))
-	  (for-each 
-		(lambda(e) (println "-->" (lint-r7rs e) "<--\n")) 
-		p))))
+	  (for-each lint-r7rs p))))
 
 (define themain
   (lambda (args)
