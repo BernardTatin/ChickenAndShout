@@ -30,18 +30,18 @@
 ;; (declare (unit hextools))
 
 (define-library
- (hextools)
- (export hexgenerator)
- (import (scheme base) (scheme write) (slprintf format format-int))
- (begin
-   ;; we use a closure to have only one zeroes creation
-   ;; (bad english, bad comment or both?)
-   (define hexgenerator
-     (lambda(length)
+  (hextools)
+  (export hexgenerator)
+  (import (scheme base) (scheme write) (slprintf format format-int))
+  (begin
+	;; we use a closure to have only one zeroes creation
+	;; (bad english, bad comment or both?)
+	(define hexgenerator
+	  (lambda(length)
 
-       (define hexint
-         (lambda(value)
-           (format-int value #\0 length 16)))
+		(define hexint
+		  (lambda(value)
+			(format-int value #\0 length 16)))
 
-       hexint)))
-	)
+		hexint)))
+  )

@@ -24,6 +24,7 @@ appinone-*.scm
 # logs
 *.log
 tfile
+tmp/
 
 # Shared objects (inc. Windows DLLs)
 *.dll
