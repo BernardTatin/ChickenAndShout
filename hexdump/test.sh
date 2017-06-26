@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH=~/bin:$PATH
+
 OS=$(uname)
 case ${OS} in
 	FreeBSD)
