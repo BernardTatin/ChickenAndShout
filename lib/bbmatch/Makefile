@@ -5,8 +5,8 @@
 #
 
 SOURCES = bbmatch.scm
-MAIN = test.scm
-EXE = test
+MAIN = bbmatch-test.scm
+EXE = bbmatch-test
 CSCFLAGS = -include-path ../sl-printf -include-path ../tester -R chicken-syntax
 
-include ../mk/chicken-r7rs.mk
+include ../../mk/app.mk

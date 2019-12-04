@@ -41,3 +41,4 @@ SOURCES = slprintf/println.scm \
 SRC_APP = hexdump.scm
 
 include ../mk/app-in-one.mk
+# include ../mk/app.mk

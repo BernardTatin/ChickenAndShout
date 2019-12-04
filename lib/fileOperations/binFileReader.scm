@@ -33,7 +33,7 @@
   (cond-expand
 	(chicken
 	  (import (scheme base) (scheme read) (scheme file)
-			  (matchable) (extras)
+			  (matchable) ;;(extras)
 			  (fileOperations safe-open-file) (tools exception)))
 	(gosh
 	  (import (scheme base) (scheme read) (scheme file)
