@@ -7,10 +7,9 @@
 (define-library 
   (ngenerator)
   (export generateN)
-  (import (scheme base) (slprintf println))
+  (import (scheme base)
+		  (scheme write))
   (begin
-
-	;; ======================================================================
 
 	;; ======================================================================
 	(define generateN 
@@ -37,6 +36,11 @@
 		;; Return the generator 
 		generator))
 
+	(define (println . args)
+	  (for-each display args)
+	  (newline))
+
+	;; ======================================================================
 
 	(define main
 	  (lambda()
